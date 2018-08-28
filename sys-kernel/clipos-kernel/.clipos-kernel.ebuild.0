@@ -9,10 +9,10 @@ inherit cros-workon versionator eutils clipos-product-info
 
 MY_PV=$(get_version_component_range 1-2)
 
-# v4.17.19-138-g2cf4ca0b1779
-CROS_WORKON_COMMIT="2cf4ca0b17797abe2dd7dc26a51dc97df298291a"
+# v4.18.12-1918-g5f20111de80d
+CROS_WORKON_COMMIT="5f20111de80d039e7a42ac4ee55a7f9c05639744"
 KEYWORDS="amd64"
-CONFIG_SUFFIX="4.17"
+CONFIG_SUFFIX="4.18"
 
 DESCRIPTION="Linux kernel for CLIP"
 HOMEPAGE="https://www.kernel.org"
