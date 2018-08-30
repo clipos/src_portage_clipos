@@ -43,11 +43,12 @@ DEPEND="
 src_prepare() {
 	local configsets=(
 		basic
-		boards/generic
-		boards/kvm-ovmf64
-		cpu/intel_skylake
+		boards
+		cpu/intel
 		cpu/x86_64
-		graphic
+		graphics
+		kvm_guest
+		misc_drivers
 		net/basic
 		net/ipsec
 		net/netfilter
