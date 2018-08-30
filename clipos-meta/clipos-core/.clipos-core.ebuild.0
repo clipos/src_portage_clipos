@@ -46,6 +46,11 @@ RDEPEND+="
 	sys-apps/sed
 "
 
+# Kernel
+RDEPEND+="
+	sys-kernel/clipos-kernel
+"
+
 # Everything needed for debug only.
 # TODO: Move bash, coreutils, procps, psmisc here?
 RDEPEND+="

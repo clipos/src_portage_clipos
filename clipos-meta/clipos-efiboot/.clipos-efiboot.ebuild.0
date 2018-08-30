@@ -41,10 +41,9 @@ RDEPEND+="
 	sys-fs/cryptsetup[-static-libs]
 	sys-fs/lvm2
 "
-# systemd and a functional kernel
+# systemd
 RDEPEND+="
 	sys-apps/systemd
-	sys-kernel/clipos-kernel
 "
 
 # This is a meta-package, no build dependency needed and no need to create S.
