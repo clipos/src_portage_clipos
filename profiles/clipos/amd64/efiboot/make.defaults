@@ -1,0 +1,22 @@
+USE="
+	-acl
+	-berkdb
+	-cracklib
+	-curl
+	-cxx
+	-elfutils
+	-filecaps
+	-idn
+	-ipv6
+	-mime
+	-ncurses
+	-net
+	-nls
+	-pcre
+	-readline
+	-resolvconf
+	-suid
+	-unicode
+	-xattr
+	-xkb
+"

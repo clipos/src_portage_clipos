@@ -1,0 +1,2 @@
+# As of July 2018, there is no efitools ebuild marked as stable
+app-crypt/efitools ~amd64

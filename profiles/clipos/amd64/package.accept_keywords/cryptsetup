@@ -1,0 +1,3 @@
+# Required for both core & efiboot
+~sys-fs/cryptsetup-2.0.3 ~amd64
+=app-crypt/argon2-20171227 ~amd64

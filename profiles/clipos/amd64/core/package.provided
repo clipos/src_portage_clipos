@@ -1,0 +1,5 @@
+# Exclude PDEPEND from OpenSSL: by default, clipos-core must not trust Internet
+# CA. Trusted CA should be tailored to the update mechanism, VPN and so on.
+# Only dedicated containers might embed Internet CA according to their use
+# case.
+app-misc/ca-certificates-99999999

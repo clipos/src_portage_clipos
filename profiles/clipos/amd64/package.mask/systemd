@@ -1,0 +1,3 @@
+# Explicitly mask systemd 239 as we wait for 240:
+# https://github.com/systemd/systemd/commit/5b5d82615011b9827466b7cd5756da35627a1608
+>=sys-apps/systemd-239

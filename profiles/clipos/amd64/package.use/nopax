@@ -1,0 +1,3 @@
+# Disable PaX support for non-grsecurity kernels
+# sys-apps/elfix -ptpax -xtpax
+# dev-python/pypax -ptpax -xtpax

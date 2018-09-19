@@ -1,0 +1,2 @@
+sys-apps/util-linux -ncurses
+sys-process/procps -ncurses

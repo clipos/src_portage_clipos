@@ -1,0 +1,10 @@
+USE="
+	-acl
+	-berkdb
+	-cxx
+	-elfutils
+	-ipv6
+	-mime
+	-nls
+	-suid
+"

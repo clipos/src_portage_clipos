@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<maintainer type="project">
+	<email>clipos@ssi.gouv.fr</email>
+	<name>ANSSI</name>
+</maintainer>
+<!--
+<longdescription>Long description of the package</longdescription>
+<use>
+	<flag name="aspell">Uses <pkg>app-text/aspell</pkg> for spell checking.
+		Requires an installed dictionary from <cat>app-dicts</cat></flag>
+	<flag name="flag">Description of how USE='flag' affects this package</flag>
+	<flag name="userland_GNU">Description of how USERLAND='GNU' affects this
+		package</flag>
+</use>
+-->
+</pkgmetadata>
+<!-- vim: set ts=4 sts=4 sw=4 noet: -->

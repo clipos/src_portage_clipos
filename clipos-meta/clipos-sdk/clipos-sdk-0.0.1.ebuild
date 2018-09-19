@@ -1,0 +1,1 @@
+.clipos-sdk.ebuild.0

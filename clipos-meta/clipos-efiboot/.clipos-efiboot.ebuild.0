@@ -1,0 +1,54 @@
+# Copyright © 2017-2018 ANSSI. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+
+DESCRIPTION="Configuration for everything that should be in the initrd & EFI partition"
+HOMEPAGE="https://clip-os.org"
+
+LICENSE="GPL-2"
+SLOT="0"
+KEYWORDS="amd64"
+IUSE=""
+
+# Secure Boot support
+RDEPEND+="
+	app-crypt/sbsigntools
+	app-crypt/efitools
+	sys-firmware/edk2-ovmf
+"
+
+# dracut to produce an initramfs
+RDEPEND+="
+	sys-kernel/dracut
+"
+# The runtime dependencies needed to make dracut work and which are not marked
+# as rdeps in dracut because they are part of the system profile (see "Implicit
+# System Dependency" in Gentoo docs).
+RDEPEND+="
+	sys-apps/findutils
+	sys-apps/gawk
+	sys-apps/grep
+	sys-apps/kbd
+	sys-apps/sed
+	sys-apps/shadow
+	sys-devel/binutils
+	sys-libs/glibc
+"
+# Everything needed to mount the partitions and which will be automagically
+# detected by dracut and which will then enable the appropriate dracut modules.
+RDEPEND+="
+	sys-fs/cryptsetup[-static-libs]
+	sys-fs/lvm2
+"
+# systemd and a functional kernel
+RDEPEND+="
+	sys-apps/systemd
+	sys-kernel/clipos-kernel
+"
+
+# This is a meta-package, no build dependency needed and no need to create S.
+DEPEND=""
+S="${WORKDIR}"
+
+# vim: set ts=4 sts=4 sw=4 noet:

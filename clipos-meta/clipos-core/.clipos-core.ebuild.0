@@ -1,0 +1,70 @@
+# Copyright © 2017-2018 ANSSI. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+
+DESCRIPTION="Meta ebuild for everything that should be in the Core root."
+HOMEPAGE="https://clip-os.org"
+SRC_URI=""
+
+LICENSE="GPL-2"
+SLOT="0"
+KEYWORDS="amd64"
+IUSE="clipos-instru-devel"
+
+RDEPEND="
+	app-shells/bash
+	sys-apps/baselayout
+	sys-apps/coreutils
+	sys-apps/kbd
+	sys-apps/systemd
+	sys-apps/util-linux
+	sys-devel/binutils
+	sys-libs/libcap
+	sys-libs/zlib
+	sys-process/procps
+	sys-process/psmisc
+	virtual/libc
+	virtual/modutils
+	virtual/os-headers
+	virtual/shadow
+"
+
+# Everything needed to mount the partitions.
+RDEPEND+="
+	sys-fs/cryptsetup[-static-libs]
+	sys-fs/lvm2
+"
+
+# Everything needed for updates.
+RDEPEND+="
+"
+
+# Needed for configure step and removed before bundle
+RDEPEND+="
+	sys-apps/gawk
+	sys-apps/sed
+"
+
+# Everything needed for debug only.
+# TODO: Move bash, coreutils, procps, psmisc here?
+RDEPEND+="
+	clipos-instru-devel? (
+		app-editors/vim
+		app-misc/tmux
+		app-text/tree
+		dev-util/strace
+		net-misc/iputils
+		sys-apps/grep
+		sys-apps/iproute2
+		sys-apps/less
+		sys-apps/net-tools
+		virtual/pager
+	)
+"
+
+# This is a meta-package, no build dependency needed and no need to create S.
+DEPEND=""
+S="${WORKDIR}"
+
+# vim: set ts=4 sts=4 sw=4 noet:

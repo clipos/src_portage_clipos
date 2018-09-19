@@ -1,0 +1,6 @@
+sys-apps/util-linux -cramfs
+sys-fs/lvm2 -thin
+
+dev-libs/openssl bindist -sslv3 -tls-heartbeat
+net-misc/openssh bindist -hpn
+virtual/ssh -minimal

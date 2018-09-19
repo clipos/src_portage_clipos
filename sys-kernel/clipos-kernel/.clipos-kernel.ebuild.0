@@ -1,0 +1,224 @@
+# Copyright © 2017-2018 ANSSI. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=6
+CROS_WORKON_LOCALDIR='external'
+CROS_WORKON_LOCALNAME='linux'
+
+inherit cros-workon versionator eutils clipos-product-info
+
+MY_PV=$(get_version_component_range 1-2)
+
+# v4.17.19-138-g2cf4ca0b1779
+CROS_WORKON_COMMIT="2cf4ca0b17797abe2dd7dc26a51dc97df298291a"
+KEYWORDS="amd64"
+CONFIG_SUFFIX="4.17"
+
+DESCRIPTION="Linux kernel for CLIP"
+HOMEPAGE="https://www.kernel.org"
+LICENSE="GPL-2"
+SLOT="0"
+IUSE="debug ipv6 selinux"
+
+# Disable standard env flags for kernel compiles
+CFLAGS=""
+ASFLAGS=""
+LDFLAGS=""
+ARCH=${ARCH#~}
+ARCH=${ARCH/x86/i386}
+ARCH=${ARCH/amd64/x86_64}
+
+# RDEPEND=""
+# ${RDEPEND}
+DEPEND="
+	app-arch/lz4
+	sys-apps/kmod[lzma]
+	sys-apps/net-tools
+	sys-devel/bc
+	sys-devel/binutils
+	sys-devel/gcc
+	sys-devel/make
+"
+
+src_prepare() {
+	local configsets=(
+		basic
+		boards/generic
+		boards/kvm-ovmf64
+		cpu/intel_skylake
+		cpu/x86_64
+		graphic
+		net/basic
+		net/ipsec
+		net/netfilter
+		sound
+		security/basic
+		feature/linux-hardened
+		feature/lockdown
+		feature/stackleak
+		)
+	if use debug; then
+		ewarn "Setting DEBUG options"
+		configsets+=(debug)
+	fi
+	if use ipv6; then
+		configsets+=(
+			net/ipv6
+			net/ipsec_ipv6
+			net/netfilter_ipv6
+			)
+	fi
+	if use selinux; then
+		configsets+=( security/selinux )
+	fi
+	generate_config "${configsets[@]}"
+
+	# Workaround to prevent '+' sign from being appended to the local version
+	touch "${S}/.scmversion"
+
+	# Append revision and distro name to kernel local version
+	set_opt "CONFIG_LOCALVERSION" \
+		"\"$([[ $PR != "r0" ]] && echo "-${PR}")-$(get_shortname)\""
+
+	# Set default security module
+	if use selinux ; then
+		set_opt "CONFIG_DEFAULT_SECURITY_SELINUX"
+		set_opt "CONFIG_DEFAULT_SECURITY" "\"selinux\""
+	else
+		set_opt "CONFIG_DEFAULT_SECURITY_DAC"
+		set_opt "CONFIG_DEFAULT_SECURITY" "\"\""
+	fi
+
+	# Provide our own x509.genkey file for module signing
+	cp "${FILESDIR}/x509.genkey" "${S}/certs/x509.genkey"
+
+	eapply_user  # mandatory by EAPI=6
+}
+
+src_compile() {
+	# Compute the kernel version string to be used
+	KERNEL_VERSIONSTRING="$(make -s kernelrelease)"
+	einfo "Kernel version string is ${KERNEL_VERSIONSTRING}"
+
+	make ${MAKEOPTS} ARCH="${ARCH}" all \
+		|| die "Kernel compilation failed."
+
+	make ${MAKEOPTS} ARCH="${ARCH}" modules_prepare \
+		|| die "Kernel modules compilation failed."
+}
+
+src_install() {
+	# Install kernel image, System.map and configuration in /boot
+	# (dracut will only grab the kernel image anyway)
+	insinto "/boot"
+	newins arch/x86/boot/bzImage "vmlinuz-${KERNEL_VERSIONSTRING}"
+	dosym "vmlinuz-${KERNEL_VERSIONSTRING}" "/boot/vmlinuz"
+	newins System.map "System.map-${KERNEL_VERSIONSTRING}"
+	newins .config "config-${KERNEL_VERSIONSTRING}"
+
+	# Install modules
+	make ${MAKEOPTS} INSTALL_MOD_PATH="${D}" modules_install
+
+	# By default (i.e. by using modules_install from the kernel's Makefile),
+	# these 2 nodes are symlinks to the kernel sources directory. But this
+	# directory won't exist outside of the temporary emerge working directory
+	# and these 2 symlinks will be broken after install.
+	rm -f "${D}/lib/modules/${KERNEL_VERSIONSTRING}/build" \
+		"${D}/lib/modules/${KERNEL_VERSIONSTRING}/source"
+}
+
+set_opt() {
+	local optname="${1:?optname argument is needed}"
+	local optval="${2:-y}"  # default is yes
+
+	einfo "Setting option ${optname} to ${optval}."
+	sed -i -e "s/^${optname}=.*/${optname}=${optval}/" "${S}/.config"
+	sed -i -e "s/^# ${optname} is not set.*/${optname}=${optval}/" "${S}/.config"
+	grep -qE "^${optname}=${optval}" "${S}/.config" \
+		|| echo "${optname}=${optval}" >> "${S}/.config"
+}
+
+unset_opt() {
+	local optnamepat="${1:?optnamepat argument is needed}"
+	local optmatch
+	local found=0
+
+	while read optmatch; do
+		let found++ || true
+		if [[ ${optmatch} == ${optnamepat} ]]; then
+			einfo "Unsetting option ${optmatch}"
+		else
+			einfo "Unsetting option ${optmatch} matching pattern ${optnamepat}"
+		fi
+		sed -i -r "s/^${optmatch}=.*/# ${optmatch} is not set/" "${S}/.config"
+	done < <(sed -n -r "s/^(${optnamepat})=.*/\1/p" "${S}/.config")
+
+	if [[ ${found} -eq 0 ]]; then
+		# Be sure to unset invisible option too
+		einfo "Unsetting option ${optnamepat}"
+		echo "# ${optnamepat} is not set" >> "${S}/.config"
+	fi
+}
+
+# initial miniconfig idea from Rob Landley and Piotr Karbowski (foo-miniconfig)
+generate_config() {
+	local miniconfig_cat="$(emktemp)"
+	local miniconfig_sort="$(emktemp)"
+	local config
+	local missing=()
+	local unwanted=()
+
+	einfo "Kernel configuration set:"
+	for configset in "$@"; do
+		if [[ -f "${FILESDIR}/config.d/${configset}" ]]; then
+			einfo "  ${configset}"
+			cat "${FILESDIR}/config.d/${configset}" >> "${miniconfig_cat}"
+			for subconfigset in $(ls ${FILESDIR}/config.d/${configset}-*); do
+				# FIXME: removal of a config option in a new kernel version
+				# is not handled. Theoretically an option removed from Kconfig
+				# should have no impact anymore in the source code, but we
+				# still might want to disable an option starting from a certain
+				# kernel version (e.g. disable buggy option for kernels newer
+				# than 4.x).
+				version_compare "${subconfigset##*-}" "${CONFIG_SUFFIX}"
+				if [[ $? -lt 3 ]]; then
+					einfo "Adding ${subconfigset} configuration set"
+					cat "${FILESDIR}/config.d/${subconfigset}" \
+						>> "${miniconfig_cat}"
+				fi
+			done 2>/dev/null
+		else
+			die "There is no ${configset} configuration set"
+		fi
+	done
+	sort -u "${miniconfig_cat}" > "${miniconfig_sort}"
+	rm "${miniconfig_cat}"
+
+	pushd "${S}" >/dev/null
+	make ARCH="${ARCH}" KCONFIG_ALLCONFIG="${miniconfig_sort}" allnoconfig
+
+	# check consistency
+	while read config; do
+		if ! grep -q "^${config}\$" .config; then
+			missing+=("${config}")
+		fi
+	done < "${miniconfig_sort}"
+	if [[ "${#missing[@]}" -ne 0 ]]; then
+		die "Missing ${#missing[@]} entry from ${miniconfig_sort}: ${missing[*]}"
+	fi
+	popd >/dev/null
+
+	# check blacklisted options
+	if ! use debug; then
+		while read config; do
+			if grep -q "^${config}=" "${S}/.config"; then
+				unwanted+=("${config}")
+			fi
+		done < "${FILESDIR}/config.d/blacklist"
+		if [[ "${#unwanted[@]}" -ne 0 ]]; then
+			die "${#unwanted[@]} entry blacklisted but appearing in final .config: ${unwanted[*]}"
+		fi
+	fi
+}
+
+# vim: set ts=4 sts=4 sw=4 noet:

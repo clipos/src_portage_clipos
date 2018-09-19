@@ -1,0 +1,4 @@
+# Default set of useflags for the systemd ebuild.
+# Only flags common to all targets and the SDK are listed here.
+# vanilla: We do not use Gentoo integration
+sys-apps/systemd acl -apparmor -audit -build elfutils -importd kmod -libidn2 lz4 -lzma -nat pam pcre -policykit -qrcode seccomp -selinux -test vanilla xkb
