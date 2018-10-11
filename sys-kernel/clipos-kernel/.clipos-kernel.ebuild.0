@@ -9,8 +9,8 @@ inherit cros-workon versionator eutils clipos-product-info
 
 MY_PV=$(get_version_component_range 1-2)
 
-# v4.18.12-1918-g5f20111de80d
-CROS_WORKON_COMMIT="5f20111de80d039e7a42ac4ee55a7f9c05639744"
+# v4.18.13-1919-gf19591f859c9
+CROS_WORKON_COMMIT="f19591f859c97c75bc767d96d37febb5aa768e9b"
 KEYWORDS="amd64"
 CONFIG_SUFFIX="4.18"
 
