@@ -90,6 +90,14 @@ src_prepare() {
 		set_opt "CONFIG_DEFAULT_SECURITY" "\"\""
 	fi
 
+	# (Un)set some Kconfig options (that we cannot handle with the debug
+	# configset because they are already set in other configsets) to ease
+	# debugging
+	if use debug ; then
+		unset_opt "CONFIG_PANIC_ON_OOPS"
+		set_opt "CONFIG_PANIC_TIMEOUT" "0"
+	fi
+
 	# Provide our own x509.genkey file for module signing
 	cp "${FILESDIR}/x509.genkey" "${S}/certs/x509.genkey"
 
