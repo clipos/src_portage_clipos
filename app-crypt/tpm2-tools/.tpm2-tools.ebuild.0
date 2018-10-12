@@ -1,0 +1,21 @@
+# Copyright © 2018 ANSSI. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit eutils
+
+DESCRIPTION="TPM (Trusted Platform Module) 2 tools based on TCG TPM2 Software Stack (TSS2)"
+HOMEPAGE="https://github.com/tpm2-software/tpm2-tools"
+SRC_URI="${HOMEPAGE}/releases/download/${PV}/${P}.tar.gz"
+
+LICENCE="BSD"
+SLOT="0"
+KEYWORDS="amd64"
+IUSE="abrmd"
+
+RDEPEND=">=app-crypt/tpm2-tss-2.0.0
+		 abrmd? ( >=app-crypt/tpm2-abrmd-2.0.0 )
+		 dev-libs/openssl
+		 net-misc/curl"
+DEPEND="${RDEPEND}"
