@@ -1,0 +1,2 @@
+# Easier debugging
+sys-libs/glibc -hardened debug
