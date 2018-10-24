@@ -66,6 +66,7 @@ RDEPEND+="
 		sys-apps/less
 		sys-apps/net-tools
 		virtual/pager
+		sys-devel/gdb
 	)
 "
 
