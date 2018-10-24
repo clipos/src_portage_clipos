@@ -1,1 +1,1 @@
-gentoo:hardened/linux/amd64/no-multilib
+gentoo:default/linux/amd64/17.0/no-multilib/hardened
