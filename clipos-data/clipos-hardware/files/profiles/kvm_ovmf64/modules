@@ -1,0 +1,17 @@
+atkbd
+psmouse
+ptp_kvm
+qemu_fw_cfg
+qxl
+bochs-drm
+rtc-cmos
+snd_hda_codec_generic
+virtio_balloon
+virtio_console
+virtio_crypto
+virtio_gpu
+virtio_input
+virtio_mmio
+virtio_net
+virtio_rng
+virtio_scsi

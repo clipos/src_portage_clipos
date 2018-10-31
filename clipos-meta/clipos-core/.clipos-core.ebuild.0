@@ -46,8 +46,9 @@ RDEPEND+="
 	sys-apps/sed
 "
 
-# Kernel
+# Kernel and hardware support
 RDEPEND+="
+	clipos-data/clipos-hardware
 	sys-kernel/clipos-kernel
 "
 
