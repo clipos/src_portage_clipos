@@ -14,7 +14,7 @@ CROS_WORKON_COMMIT="22b201a6ffcbaac7cb7ba6934462d04e6516c3e0"
 KEYWORDS="amd64"
 CONFIG_SUFFIX="4.18"
 
-DESCRIPTION="Linux kernel for CLIP"
+DESCRIPTION="Linux kernel for CLIP OS"
 HOMEPAGE="https://www.kernel.org"
 LICENSE="GPL-2"
 SLOT="0"
@@ -105,10 +105,6 @@ src_prepare() {
 }
 
 src_compile() {
-	# Compute the kernel version string to be used
-	KERNEL_VERSIONSTRING="$(make -s kernelrelease)"
-	einfo "Kernel version string is ${KERNEL_VERSIONSTRING}"
-
 	make ${MAKEOPTS} ARCH="${ARCH}" all \
 		|| die "Kernel compilation failed."
 
@@ -117,6 +113,10 @@ src_compile() {
 }
 
 src_install() {
+	# Compute the kernel version string to be used
+	KERNEL_VERSIONSTRING="$(make -s kernelrelease)"
+	einfo "Kernel version string is ${KERNEL_VERSIONSTRING}"
+
 	# Install kernel image, System.map and configuration in /boot
 	# (dracut will only grab the kernel image anyway)
 	insinto "/boot"
