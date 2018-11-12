@@ -1,0 +1,29 @@
+# Copyright © 2018 ANSSI. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+inherit autotools eutils
+
+DESCRIPTION="The libtpms library provides software emulation of a Trusted Platform Module (TPM 1.2 and TPM 2)"
+HOMEPAGE="https://github.com/stefanberger/libtpms"
+SRC_URI="https://codeload.github.com/stefanberger/${PN}/tar.gz/v${PV} -> ${P}.tar.gz"
+
+LICENCE="BSD-3"
+SLOT="0"
+KEYWORDS="~amd64"
+IUSE="debug"
+
+RDEPEND="
+	dev-libs/openssl[-bindist]
+"
+DEPEND="${RDEPEND}"
+
+src_prepare() {
+    eapply_user
+    eautoreconf
+}
+
+src_configure() {
+	econf --with-tpm2 --with-openssl $(use_enable debug)
+}
