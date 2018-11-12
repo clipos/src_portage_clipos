@@ -1,0 +1,44 @@
+# Copyright 1999-2018 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+if [[ ${PV} ==  9999 ]]; then
+	EGIT_REPO_URI="https://github.com/stefanberger/${PN}.git"
+	EGIT_BRANCH="master"
+	inherit git-r3
+else
+	SRC_URI="https://codeload.github.com/stefanberger/${PN}/tar.gz/v${PV} -> ${P}.tar.gz"
+fi
+
+inherit autotools eutils
+
+DESCRIPTION="Libtpms-based TPM emulator with socket, character device, and Linux CUSE interface."
+HOMEPAGE="https://github.com/stefanberger/swtpm"
+
+LICENCE="BSD-3"
+SLOT="0"
+KEYWORDS="~amd64"
+IUSE="debug selinux"
+
+RDEPEND="
+	dev-libs/libtpms
+	app-crypt/tpm-tools
+	dev-tcltk/expect
+	net-libs/gnutls
+	dev-libs/glib
+	sys-fs/fuse
+	"
+DEPEND="
+	${RDEPEND}
+	net-misc/socat
+	"
+
+src_prepare() {
+    eapply_user
+    eautoreconf
+}
+
+src_configure() {
+	econf --with-openssl $(use_enable debug) $(use_with selinux)
+}
