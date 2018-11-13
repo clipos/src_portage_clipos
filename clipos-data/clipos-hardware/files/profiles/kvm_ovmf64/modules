@@ -1,4 +1,5 @@
 atkbd
+i8042
 psmouse
 ptp_kvm
 qemu_fw_cfg
