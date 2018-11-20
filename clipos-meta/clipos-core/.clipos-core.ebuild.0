@@ -52,6 +52,11 @@ RDEPEND+="
 	sys-kernel/clipos-kernel
 "
 
+# POSS workshop: web server support
+RDEPEND+="
+	www-servers/nginx
+"
+
 # Everything needed for debug only.
 # TODO: Move bash, coreutils, procps, psmisc here?
 RDEPEND+="
