@@ -440,6 +440,18 @@ multilib_src_install_all() {
 		rm -rf "${ED%/}"/${d}
 	done
 
+	# Remove nspawn binary, tmpfiles & unit
+	rm "${ED:?}"/usr/bin/systemd-nspawn
+	rm "${ED:?}"/usr/lib64/tmpfiles.d/systemd-nspawn.conf
+	rm "${ED:?}"/lib64/systemd/system/systemd-nspawn@.service
+
+	# Remove /sys/kernel/config & /sys/kernel/debug mounts
+	rm "${ED:?}"/lib64/systemd/system/sys-kernel-config.mount
+	rm "${ED:?}"/lib64/systemd/system/sys-kernel-debug.mount
+
+	# Remove /tmp mount
+	rm "${ED:?}"/lib64/systemd/system/tmp.mount
+
 	# Do not enable random services if /etc was detected as empty!!!
 	# rm "${ED%/}$(usex split-usr /usr '')/lib/systemd/system-preset/90-systemd.preset" || die
 	insinto $(usex split-usr /usr '')/lib/systemd/system-preset
