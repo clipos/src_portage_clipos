@@ -467,6 +467,10 @@ multilib_src_install_all() {
 	insinto /usr/lib/sysusers.d
 	doins "${FILESDIR}"/basic.conf
 	doins "${FILESDIR}"/systemd.conf
+
+	# Install systemd-journald config override
+	insinto /etc/systemd/journald.conf.d/
+	doins "${FILESDIR}"/journald/default.conf
 }
 
 migrate_locale() {
