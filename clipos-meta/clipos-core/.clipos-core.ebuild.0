@@ -51,6 +51,11 @@ RDEPEND+="
 	sys-kernel/clipos-kernel
 "
 
+# Remote access and management
+RDEPEND+="
+	net-misc/openssh[clipos]
+"
+
 # Everything needed for debug only.
 # TODO: Move bash, coreutils, procps, psmisc here?
 RDEPEND+="
