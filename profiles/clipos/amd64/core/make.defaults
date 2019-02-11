@@ -7,4 +7,6 @@ USE="
 	-mime
 	-nls
 	-suid
+
+	clipos
 "

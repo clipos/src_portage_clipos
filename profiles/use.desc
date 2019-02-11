@@ -3,5 +3,6 @@
 
 # Keep them sorted
 
+clipos - Enable all changes specific to the CLIP OS Project
 clipos-instru-debug - Enable features or dependencies only required for debugging. Set if the CLIP OS instrumentation level is above or equal to debug
 clipos-instru-devel - Enable features or dependencies only required for development. Set if the CLIP OS recipe instrumentation level is above or equal to development
