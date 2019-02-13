@@ -1,5 +1,5 @@
 # Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
-# Copyright © 2017-2018 ANSSI. All rights reserved.
+# Copyright © 2017 ANSSI. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
 # CLIP-OS-related alteration to this eclass:
