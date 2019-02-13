@@ -23,7 +23,7 @@ HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="acl apparmor audit build cryptsetup curl elfutils +gcrypt gnuefi http idn importd +kmod libidn2 +lz4 lzma nat pam pcre policykit qrcode +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb"
-IUSE="${IUSE} firstboot sysusers networkd clipos-devel-instru"
+IUSE="${IUSE} firstboot sysusers networkd clipos-instru-devel"
 
 REQUIRED_USE="importd? ( curl gcrypt lzma )"
 RESTRICT="!test? ( test )"
@@ -327,8 +327,8 @@ multilib_src_configure() {
 		-Dnetworkd=$(meson_multilib_native_use networkd)
 
 		# Enabled only for development & debug
-		-Dcoredump=$(usex clipos-devel-instru true false)
-		-Ddebug-shell=$(usex clipos-devel-instru /bin/bash /sbin/nologin)
+		-Dcoredump=$(usex clipos-instru-devel true false)
+		-Ddebug-shell=$(usex clipos-instru-devel /bin/bash /sbin/nologin)
 
 		# Always disabled
 		-Dima=false
