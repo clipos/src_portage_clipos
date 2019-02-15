@@ -1,24 +1,31 @@
 # Copyright © 2017 ANSSI. All rights reserved.
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-CROS_WORKON_LOCALDIR='external'
-CROS_WORKON_LOCALNAME='linux'
+EAPI=7
+CROS_WORKON_PROJECT=(
+	'external/linux'					# Linux kernel
+	'platform/config-linux-hardware'	# Product's hardware configurations
+)
+CROS_WORKON_DESTDIR=(
+	"${S}"
+	"${S}/hardware"
+)
+CROS_WORKON_COMMIT=(
+	'd29c4f9382155aac445d3dd8adb4b4b14e5f6f7f'	# v4.20.11-6663-gd29c4f9382155
+	'af95a960276e728b5e43a9267c78c0b4f0b02fdc'	# head of master branch
+)
 
-inherit cros-workon versionator eutils clipos-product-info
+inherit cros-workon eutils clipos-product-info
 
-MY_PV=$(get_version_component_range 1-2)
-
-# v4.20.11-6663-gd29c4f9382155
-CROS_WORKON_COMMIT="d29c4f9382155aac445d3dd8adb4b4b14e5f6f7f"
-KEYWORDS="amd64"
-CONFIG_SUFFIX="4.20"
-
-DESCRIPTION="Linux kernel for CLIP OS"
-HOMEPAGE="https://www.kernel.org"
+DESCRIPTION="Linux kernel and hardware configurations for CLIP OS"
+HOMEPAGE="https://clip-os.org"
 LICENSE="GPL-2"
 SLOT="0"
+KEYWORDS="amd64"
 IUSE="debug ipv6 selinux"
+
+MY_PV=$(ver_cut 1-2)
+CONFIG_SUFFIX="${MY_PV}"
 
 # Disable standard env flags for kernel compiles
 CFLAGS=""
@@ -133,6 +140,23 @@ src_install() {
 	# and these 2 symlinks will be broken after install.
 	rm -f "${D}/lib/modules/${KERNEL_VERSIONSTRING}/build" \
 		"${D}/lib/modules/${KERNEL_VERSIONSTRING}/source"
+
+	# Install hardware profiles
+	local profilesdir="$(basename -- "${CROS_WORKON_DESTDIR[1]}")/profiles"
+	local profile name core nb_main=0 nb_extra=0
+	for profile in "${profilesdir}"/* ; do
+		[[ -d "$profile" ]] || continue
+		insinto "/usr/share/$profile" && doins "$profile/modules"
+		name="$(basename -- "$profile")"
+		core="${name//+}"
+		core="${core//-}"
+		if [ "$name" != "$core" ]; then
+			let "nb_extra++" || :
+		else
+			let "nb_main++" || :
+		fi
+	done
+	einfo "Installed ${nb_main} main configurations and ${nb_extra} derivatives"
 }
 
 set_opt() {
@@ -170,6 +194,7 @@ unset_opt() {
 
 # initial miniconfig idea from Rob Landley and Piotr Karbowski (foo-miniconfig)
 generate_config() {
+	local configdir="${CROS_WORKON_DESTDIR[1]}/kernel_config"
 	local miniconfig_cat="$(emktemp)"
 	local miniconfig_sort="$(emktemp)"
 	local config
@@ -178,10 +203,10 @@ generate_config() {
 
 	einfo "Kernel configuration set:"
 	for configset in "$@"; do
-		if [[ -f "${FILESDIR}/config.d/${configset}" ]]; then
+		if [[ -f "${configdir}/${configset}" ]]; then
 			einfo "  ${configset}"
-			cat "${FILESDIR}/config.d/${configset}" >> "${miniconfig_cat}"
-			for subconfigset in $(ls ${FILESDIR}/config.d/${configset}-*); do
+			cat "${configdir}/${configset}" >> "${miniconfig_cat}"
+			for subconfigset in $(ls ${configdir}/${configset}-*); do
 				# FIXME: removal of a config option in a new kernel version
 				# is not handled. Theoretically an option removed from Kconfig
 				# should have no impact anymore in the source code, but we
@@ -191,7 +216,7 @@ generate_config() {
 				version_compare "${subconfigset##*-}" "${CONFIG_SUFFIX}"
 				if [[ $? -lt 3 ]]; then
 					einfo "Adding ${subconfigset} configuration set"
-					cat "${FILESDIR}/config.d/${subconfigset}" \
+					cat "${configdir}/${subconfigset}" \
 						>> "${miniconfig_cat}"
 				fi
 			done 2>/dev/null
@@ -222,7 +247,7 @@ generate_config() {
 			if grep -q "^${config}=" "${S}/.config"; then
 				unwanted+=("${config}")
 			fi
-		done < "${FILESDIR}/config.d/blacklist"
+		done < "${configdir}/blacklist"
 		if [[ "${#unwanted[@]}" -ne 0 ]]; then
 			die "${#unwanted[@]} entry blacklisted but appearing in final .config: ${unwanted[*]}"
 		fi
