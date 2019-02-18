@@ -12,7 +12,7 @@ CROS_WORKON_DESTDIR=(
 )
 CROS_WORKON_COMMIT=(
 	'd29c4f9382155aac445d3dd8adb4b4b14e5f6f7f'	# v4.20.11-6663-gd29c4f9382155
-	'af95a960276e728b5e43a9267c78c0b4f0b02fdc'	# head of master branch
+	'5d70033c44bc0f42ac8785f4a8c6deb6cf933a18'	# head of master branch
 )
 
 inherit cros-workon eutils clipos-product-info
@@ -39,6 +39,7 @@ ARCH=${ARCH/amd64/x86_64}
 # ${RDEPEND}
 DEPEND="
 	app-arch/lz4
+	sys-apps/gawk
 	sys-apps/kmod[lzma]
 	sys-apps/net-tools
 	sys-devel/bc
@@ -78,7 +79,10 @@ src_prepare() {
 	if use selinux; then
 		configsets+=( security/selinux )
 	fi
-	generate_config "${configsets[@]}"
+
+	CONFIGDIR="${CROS_WORKON_DESTDIR[1]}" S="$S" ARCH="$ARCH" \
+		DEBUG=$(use debug) \
+		"${CROS_WORKON_DESTDIR[1]}/make-config.sh" "${configsets[@]}"
 
 	# Workaround to prevent '+' sign from being appended to the local version
 	touch "${S}/.scmversion"
@@ -189,68 +193,6 @@ unset_opt() {
 		# Be sure to unset invisible option too
 		einfo "Unsetting option ${optnamepat}"
 		echo "# ${optnamepat} is not set" >> "${S}/.config"
-	fi
-}
-
-# initial miniconfig idea from Rob Landley and Piotr Karbowski (foo-miniconfig)
-generate_config() {
-	local configdir="${CROS_WORKON_DESTDIR[1]}/kernel_config"
-	local miniconfig_cat="$(emktemp)"
-	local miniconfig_sort="$(emktemp)"
-	local config
-	local missing=()
-	local unwanted=()
-
-	einfo "Kernel configuration set:"
-	for configset in "$@"; do
-		if [[ -f "${configdir}/${configset}" ]]; then
-			einfo "  ${configset}"
-			cat "${configdir}/${configset}" >> "${miniconfig_cat}"
-			for subconfigset in $(ls ${configdir}/${configset}-*); do
-				# FIXME: removal of a config option in a new kernel version
-				# is not handled. Theoretically an option removed from Kconfig
-				# should have no impact anymore in the source code, but we
-				# still might want to disable an option starting from a certain
-				# kernel version (e.g. disable buggy option for kernels newer
-				# than 4.x).
-				version_compare "${subconfigset##*-}" "${CONFIG_SUFFIX}"
-				if [[ $? -lt 3 ]]; then
-					einfo "Adding ${subconfigset} configuration set"
-					cat "${configdir}/${subconfigset}" \
-						>> "${miniconfig_cat}"
-				fi
-			done 2>/dev/null
-		else
-			die "There is no ${configset} configuration set"
-		fi
-	done
-	sort -u "${miniconfig_cat}" > "${miniconfig_sort}"
-	rm "${miniconfig_cat}"
-
-	pushd "${S}" >/dev/null
-	make ARCH="${ARCH}" KCONFIG_ALLCONFIG="${miniconfig_sort}" allnoconfig
-
-	# check consistency
-	while read config; do
-		if ! grep -q "^${config}\$" .config; then
-			missing+=("${config}")
-		fi
-	done < "${miniconfig_sort}"
-	if [[ "${#missing[@]}" -ne 0 ]]; then
-		die "Missing ${#missing[@]} entry from ${miniconfig_sort}: ${missing[*]}"
-	fi
-	popd >/dev/null
-
-	# check blacklisted options
-	if ! use debug; then
-		while read config; do
-			if grep -q "^${config}=" "${S}/.config"; then
-				unwanted+=("${config}")
-			fi
-		done < "${configdir}/blacklist"
-		if [[ "${#unwanted[@]}" -ne 0 ]]; then
-			die "${#unwanted[@]} entry blacklisted but appearing in final .config: ${unwanted[*]}"
-		fi
 	fi
 }
 
