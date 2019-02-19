@@ -12,7 +12,7 @@ CROS_WORKON_DESTDIR=(
 )
 CROS_WORKON_COMMIT=(
 	'd29c4f9382155aac445d3dd8adb4b4b14e5f6f7f'	# v4.20.11-6663-gd29c4f9382155
-	'5d70033c44bc0f42ac8785f4a8c6deb6cf933a18'	# head of master branch
+	'1b79cb9b70cd9978457a5f0f716255fbd57bcfe4'	# head of master branch
 )
 
 inherit cros-workon eutils clipos-product-info
@@ -35,8 +35,6 @@ ARCH=${ARCH#~}
 ARCH=${ARCH/x86/i386}
 ARCH=${ARCH/amd64/x86_64}
 
-# RDEPEND=""
-# ${RDEPEND}
 DEPEND="
 	app-arch/lz4
 	sys-apps/gawk
@@ -46,6 +44,7 @@ DEPEND="
 	sys-devel/binutils
 	sys-devel/gcc
 	sys-devel/make
+	sys-kernel/linux-firmware
 "
 
 src_prepare() {
@@ -145,12 +144,15 @@ src_install() {
 	rm -f "${D}/lib/modules/${KERNEL_VERSIONSTRING}/build" \
 		"${D}/lib/modules/${KERNEL_VERSIONSTRING}/source"
 
-	# Install hardware profiles
-	local profilesdir="$(basename -- "${CROS_WORKON_DESTDIR[1]}")/profiles"
+	# Install hardware profiles and firmware files
+	local hardware_repo_checkout="$(basename -- "${CROS_WORKON_DESTDIR[1]}")"
 	local profile name core nb_main=0 nb_extra=0
-	for profile in "${profilesdir}"/* ; do
+	local firmwares_list="$(emktemp)"
+
+	for profile in "$hardware_repo_checkout/profiles"/* ; do
 		[[ -d "$profile" ]] || continue
 		insinto "/usr/share/$profile" && doins "$profile/modules"
+		dodir "/usr/share/$profile/firmware"
 		name="$(basename -- "$profile")"
 		core="${name//+}"
 		core="${core//-}"
@@ -159,8 +161,31 @@ src_install() {
 		else
 			let "nb_main++" || :
 		fi
+		[[ -f "$profile/firmwares" ]] || continue
+		while read firmware; do
+			echo "$firmware" >> "$firmwares_list"
+			dosym "/usr/share/$hardware_repo_checkout/firmware/$firmware" \
+				"/usr/share/$profile/firmware/$firmware"
+		done < "$profile/firmwares"
 	done
 	einfo "Installed ${nb_main} main configurations and ${nb_extra} derivatives"
+
+	for firmware in $(sort -u "$firmwares_list"); do
+		if [[ -f "/lib/firmware/$firmware" ]]; then
+			local fw_dst_dir="/usr/share/$hardware_repo_checkout/firmware/$(dirname -- "$firmware")"
+			insinto "$fw_dst_dir"
+			doins "/lib/firmware/$firmware"
+			if [[ -h "/lib/firmware/$firmware" ]]; then
+				local relative_link_target="$(readlink -- "/lib/firmware/$firmware")"
+				insinto "$fw_dst_dir/$(dirname -- "$relative_link_target")"
+				doins "$(dirname -- "/lib/firmware/$firmware")/$relative_link_target"
+			fi
+		else
+			eerror "Could not find firmware $firmware"
+			die
+		fi
+	done
+	rm "$firmwares_list"
 }
 
 set_opt() {
