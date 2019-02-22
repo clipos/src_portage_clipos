@@ -43,7 +43,7 @@ RDEPEND+="
 "
 # systemd
 RDEPEND+="
-	sys-apps/systemd
+	sys-apps/systemd[clipos]
 "
 
 # Everything needed for debug only.
