@@ -1,0 +1,3 @@
+# Masked packages from Gentoo upstream portage tree to use only the versions
+# from this overlay
+sys-apps/systemd::gentoo
