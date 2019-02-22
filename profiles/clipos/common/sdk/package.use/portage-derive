@@ -1,0 +1,5 @@
+# SDK context: Enable the ipython dependency on portage-derive in order to be
+# able to use the "shell" option of portage-derive for debugging purposes in
+# the case where the upstream Gentoo Portage tree equalization happens to fail
+# or to misbehave.
+app-portage/portage-derive   ipython

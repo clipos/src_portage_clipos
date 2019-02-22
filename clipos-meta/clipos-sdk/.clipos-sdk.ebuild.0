@@ -19,6 +19,7 @@ RDEPEND=""
 RDEPEND+="
 	app-arch/lz4
 	app-portage/gentoolkit
+	app-portage/portage-derive
 "
 
 # Tools used for CLIP core bundle action
