@@ -23,7 +23,6 @@ RDEPEND+="
 
 # Tools used for CLIP core bundle action
 RDEPEND+="
-	app-misc/jq
 	sys-fs/cryptsetup
 	sys-fs/squashfs-tools
 "
@@ -34,7 +33,6 @@ RDEPEND+="
 	app-misc/tmux
 	app-text/tree
 	dev-vcs/git
-	dev-vcs/tig
 "
 
 # vim: set ts=4 sts=4 sw=4 noet:
