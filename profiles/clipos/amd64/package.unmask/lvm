@@ -1,3 +1,0 @@
-# Unmask lvm2 >= 2.02.158 to get --reportformat json option
-# We are not impacted by bug #617578 as we use systemd
-~sys-fs/lvm2-2.02.173
