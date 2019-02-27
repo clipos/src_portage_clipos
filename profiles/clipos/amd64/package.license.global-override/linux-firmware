@@ -1,0 +1,3 @@
+# For Linux firmwares, we tolerate the freely distributable licenses even
+# though the source code for those firmware is not available
+sys-kernel/linux-firmware freedist linux-firmware no-source-code
