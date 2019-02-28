@@ -1,13 +1,13 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 2011-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 CROS_WORKON_PROJECT='external/systemd'
-CROS_WORKON_COMMIT="438ac26c9dee2abd8658f1f5c6627d2543558ffb" # v238.r254.g438ac26c9d
+CROS_WORKON_COMMIT="a09c170122cf3b37c3e4431bf082f9dbdc07fc70" # v241-7-ga09c170122
 KEYWORDS="amd64"
 
-PYTHON_COMPAT=( python{3_4,3_5,3_6} )
+PYTHON_COMPAT=( python{3_5,3_6,3_7} )
 
 # cros-workon must be imported first, in cases where cros-workon and
 # another eclass exports the same function (say src_compile) we want
@@ -21,7 +21,7 @@ HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
 
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
-IUSE="acl apparmor audit build cryptsetup curl elfutils +gcrypt gnuefi http idn importd +kmod libidn2 +lz4 lzma nat pam pcre policykit qrcode +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb"
+IUSE="acl apparmor audit build cryptsetup curl elfutils +gcrypt gnuefi http idn importd +kmod libidn2 +lz4 lzma nat pam pcre policykit qrcode +resolvconf +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb"
 IUSE="${IUSE} firstboot sysusers networkd clipos clipos-instru-devel"
 
 REQUIRED_USE="importd? ( curl gcrypt lzma )"
@@ -68,6 +68,7 @@ RDEPEND="${COMMON_DEPEND}
 	selinux? ( sec-policy/selinux-base-policy[systemd] )
 	sysv-utils? ( !sys-apps/sysvinit )
 	!sysv-utils? ( sys-apps/sysvinit )
+	resolvconf? ( !net-dns/openresolv )
 	!build? ( || (
 		sys-apps/util-linux[kill(-)]
 		sys-process/procps[kill(+)]
@@ -86,14 +87,18 @@ PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
 	!vanilla? ( sys-apps/gentoo-systemd-integration )"
 
 # Newer linux-headers needed by ia64, bug #480218
-DEPEND="${COMMON_DEPEND}
+DEPEND="
+	>=sys-kernel/linux-headers-${MINKV}
+	gnuefi? ( >=sys-boot/gnu-efi-3.0.2 )
+"
+
+BDEPEND="${COMMON_DEPEND}
 	app-arch/xz-utils:0
 	dev-util/gperf
+	>=dev-util/meson-0.46
 	>=dev-util/intltool-0.50
 	>=sys-apps/coreutils-8.16
-	>=sys-kernel/linux-headers-${MINKV}
-	virtual/pkgconfig
-	gnuefi? ( >=sys-boot/gnu-efi-3.0.2 )
+	virtual/pkgconfig[${MULTILIB_USEDEP}]
 	test? ( sys-apps/dbus )
 	app-text/docbook-xml-dtd:4.2
 	app-text/docbook-xml-dtd:4.5
@@ -146,30 +151,33 @@ src_unpack() {
 	cros-workon_src_unpack
 }
 
-# CLIP OS: Do not use Gentoo patches
-# src_prepare() {
-# 	local PATCHES=()
-#
-# 	[[ -d "${WORKDIR}"/patches ]] && PATCHES+=( "${WORKDIR}"/patches )
-#
-# 	PATCHES+=(
-# 		"${FILESDIR}/238-initctl.patch"
-# 		"${FILESDIR}/238-nspawn-wait.patch"
-# 		"${FILESDIR}/238-timesync-connection.patch"
-# 		"${FILESDIR}/238-sparc-raw-clone.patch"
-# 	)
-#
-# 	if ! use vanilla; then
-# 		PATCHES+=(
-# 			"${FILESDIR}/gentoo-Dont-enable-audit-by-default.patch"
-# 			"${FILESDIR}/gentoo-systemd-user-pam.patch"
-# 			"${FILESDIR}/gentoo-uucp-group-r1.patch"
-# 			"${FILESDIR}/gentoo-generator-path.patch"
-# 		)
-# 	fi
-#
-# 	default
-# }
+src_prepare() {
+	# CLIP OS: Do not use Gentoo patches
+	if use clipos; then
+		default
+		return 0
+	fi
+
+	# Do NOT add patches here
+	local PATCHES=()
+
+	[[ -d "${WORKDIR}"/patches ]] && PATCHES+=( "${WORKDIR}"/patches )
+
+	# Add local patches here
+	PATCHES+=(
+	)
+
+	if ! use vanilla; then
+		PATCHES+=(
+			"${FILESDIR}/gentoo-Dont-enable-audit-by-default.patch"
+			"${FILESDIR}/gentoo-systemd-user-pam.patch"
+			"${FILESDIR}/gentoo-uucp-group-r1.patch"
+			"${FILESDIR}/gentoo-generator-path-r1.patch"
+		)
+	fi
+
+	default
+}
 
 src_configure() {
 	# Prevent conflicts with i686 cross toolchain, bug 559726
@@ -377,19 +385,29 @@ multilib_src_install() {
 }
 
 multilib_src_install_all() {
+	local rootprefix=$(usex split-usr '' /usr)
+
 	# meson doesn't know about docdir
-	mv "${ED%/}"/usr/share/doc/{systemd,${PF}} || die
+	mv "${ED}"/usr/share/doc/{systemd,${PF}} || die
 
 	einstalldocs
 	# CLIP OS: Not built
-	# dodoc "${FILESDIR}"/nsswitch.conf
+	if ! use clipos; then
+		dodoc "${FILESDIR}"/nsswitch.conf
+	fi
+
+	if ! use resolvconf; then
+		rm -f "${ED}${rootprefix}"/sbin/resolvconf || die
+	fi
 
 	if ! use sysv-utils; then
-		local rootprefix=$(usex split-usr '' /usr)
-		rm "${ED%/}${rootprefix}"/sbin/{halt,init,poweroff,reboot,runlevel,shutdown,telinit} || die
-		rmdir "${ED%/}${rootprefix}"/sbin || die
-		rm "${ED%/}"/usr/share/man/man1/init.1 || die
-		rm "${ED%/}"/usr/share/man/man8/{halt,poweroff,reboot,runlevel,shutdown,telinit}.8 || die
+		rm "${ED}${rootprefix}"/sbin/{halt,init,poweroff,reboot,runlevel,shutdown,telinit} || die
+		rm "${ED}"/usr/share/man/man1/init.1 || die
+		rm "${ED}"/usr/share/man/man8/{halt,poweroff,reboot,runlevel,shutdown,telinit}.8 || die
+	fi
+
+	if ! use resolvconf && ! use sysv-utils; then
+		rmdir "${ED}${rootprefix}"/sbin || die
 	fi
 
 	# Preserve empty dirs in /etc & /var, bug #437008
@@ -403,23 +421,18 @@ multilib_src_install_all() {
 
 	# If we install these symlinks, there is no way for the sysadmin to remove them
 	# permanently.
-	if meson_multilib_native_use networkd; then
-		rm -f "${ED%/}"/etc/systemd/system/multi-user.target.wants/systemd-networkd.service || die
-		rm -f "${ED%/}"/etc/systemd/system/dbus-org.freedesktop.network1.service || die
-	fi
-	# TODO
-	# if meson_multilib_native_use resolved; then
-	# 	rm -f "${ED%/}"/etc/systemd/system/multi-user.target.wants/systemd-resolved.service || die
-	# 	rm -f "${ED%/}"/etc/systemd/system/dbus-org.freedesktop.resolve1.service || die
-	# fi
-	rm -fr "${ED%/}"/etc/systemd/system/network-online.target.wants || die
-	rm -fr "${ED%/}"/etc/systemd/system/sockets.target.wants || die
-	rm -fr "${ED%/}"/etc/systemd/system/sysinit.target.wants || die
+	rm -f "${ED}"/etc/systemd/system/multi-user.target.wants/systemd-networkd.service || die
+	rm -f "${ED}"/etc/systemd/system/dbus-org.freedesktop.network1.service || die
+	rm -f "${ED}"/etc/systemd/system/multi-user.target.wants/systemd-resolved.service || die
+	rm -f "${ED}"/etc/systemd/system/dbus-org.freedesktop.resolve1.service || die
+	rm -fr "${ED}"/etc/systemd/system/network-online.target.wants || die
+	rm -fr "${ED}"/etc/systemd/system/sockets.target.wants || die
+	rm -fr "${ED}"/etc/systemd/system/sysinit.target.wants || die
 
 	local udevdir=/lib/udev
 	use split-usr || udevdir=/usr/lib/udev
 
-	rm -r "${ED%/}${udevdir}/hwdb.d" || die
+	rm -r "${ED}${udevdir}/hwdb.d" || die
 
 	if use split-usr; then
 		# Avoid breaking boot/reboot
@@ -440,16 +453,16 @@ multilib_src_install_all() {
 	done
 
 	# Remove nspawn binary, tmpfiles & unit
-	rm "${ED:?}"/usr/bin/systemd-nspawn
-	rm "${ED:?}"/usr/lib64/tmpfiles.d/systemd-nspawn.conf
-	rm "${ED:?}"/lib64/systemd/system/systemd-nspawn@.service
+	rm "${ED}"/usr/bin/systemd-nspawn
+	rm "${ED}"/usr/lib64/tmpfiles.d/systemd-nspawn.conf
+	rm "${ED}"/lib64/systemd/system/systemd-nspawn@.service
 
 	# Remove /sys/kernel/config & /sys/kernel/debug mounts
-	rm "${ED:?}"/lib64/systemd/system/sys-kernel-config.mount
-	rm "${ED:?}"/lib64/systemd/system/sys-kernel-debug.mount
+	rm "${ED}"/lib64/systemd/system/sys-kernel-config.mount
+	rm "${ED}"/lib64/systemd/system/sys-kernel-debug.mount
 
 	# Remove /tmp mount
-	rm "${ED:?}"/lib64/systemd/system/tmp.mount
+	rm "${ED}"/lib64/systemd/system/tmp.mount
 
 	# Do not enable random services if /etc was detected as empty!!!
 	# rm "${ED%/}$(usex split-usr /usr '')/lib/systemd/system-preset/90-systemd.preset" || die
@@ -473,9 +486,9 @@ multilib_src_install_all() {
 }
 
 migrate_locale() {
-	local envd_locale_def="${EROOT%/}/etc/env.d/02locale"
-	local envd_locale=( "${EROOT%/}"/etc/env.d/??locale )
-	local locale_conf="${EROOT%/}/etc/locale.conf"
+	local envd_locale_def="${EROOT}/etc/env.d/02locale"
+	local envd_locale=( "${EROOT}"/etc/env.d/??locale )
+	local locale_conf="${EROOT}/etc/locale.conf"
 
 	if [[ ! -L ${locale_conf} && ! -e ${locale_conf} ]]; then
 		# If locale.conf does not exist...
@@ -518,30 +531,32 @@ migrate_locale() {
 
 pkg_postinst() {
 	# CLIP OS: User and groups are created later in the configure step
-	# newusergroup() {
-	# 	enewgroup "$1"
-	# 	enewuser "$1" -1 -1 -1 "$1"
-	# }
+	if ! use clipos; then
+		newusergroup() {
+			enewgroup "$1"
+			enewuser "$1" -1 -1 -1 "$1"
+		}
 
-	# enewgroup input
-	# enewgroup kvm 78
-	# enewgroup render
-	# enewgroup systemd-journal
-	# newusergroup systemd-bus-proxy
-	# newusergroup systemd-coredump
-	# newusergroup systemd-journal-gateway
-	# newusergroup systemd-journal-remote
-	# newusergroup systemd-journal-upload
-	# newusergroup systemd-network
-	# newusergroup systemd-resolve
-	# newusergroup systemd-timesync
+		enewgroup input
+		enewgroup kvm 78
+		enewgroup render
+		enewgroup systemd-journal
+		newusergroup systemd-bus-proxy
+		newusergroup systemd-coredump
+		newusergroup systemd-journal-gateway
+		newusergroup systemd-journal-remote
+		newusergroup systemd-journal-upload
+		newusergroup systemd-network
+		newusergroup systemd-resolve
+		newusergroup systemd-timesync
+	fi
 
 	systemd_update_catalog
 
 	# Keep this here in case the database format changes so it gets updated
 	# when required. Despite that this file is owned by sys-apps/hwids.
 	if has_version "sys-apps/hwids[udev]"; then
-		udevadm hwdb --update --root="${EROOT%/}"
+		udevadm hwdb --update --root="${EROOT}"
 	fi
 
 	udev_reload || FAIL=1
@@ -553,10 +568,17 @@ pkg_postinst() {
 	if meson_multilib_native_use networkd; then
 		systemd_reenable systemd-networkd.service
 	fi
+
 	# TODO
 	# if meson_multilib_native_use resolved; then
 	# 	systemd_reenable systemd-resolved.service
 	# fi
+
+	if [[ -z ${ROOT} && -d /run/systemd/system ]]; then
+		ebegin "Reexecuting system manager"
+		systemctl daemon-reexec
+		eend $?
+	fi
 
 	if [[ ${FAIL} ]]; then
 		eerror "One of the postinst commands failed. Please check the postinst output"
