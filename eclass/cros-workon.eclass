@@ -113,6 +113,9 @@ ARRAY_VARIABLES=( CROS_WORKON_{SUBTREE,REPO,PROJECT,LOCALNAME,DESTDIR,COMMIT} )
 # to only uprev if there are changes within the specified subdirectories.
 : ${CROS_WORKON_SUBDIRS_TO_REV:=/}
 
+# We do not need to inherit git-r3 as we don't use any function provided.
+DEPEND=">=dev-vcs/git-1.8.2.1[curl]"
+
 # Sanitize all variables, autocomplete where necessary.
 # This function possibly modifies all CROS_WORKON_ variables inplace. It also
 # provides a global project_count variable which contains the number of
