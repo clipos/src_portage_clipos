@@ -11,7 +11,7 @@ CROS_WORKON_DESTDIR=(
 	"${S}/hardware"
 )
 CROS_WORKON_COMMIT=(
-	'd4c5042d0d78c6e2465c8acdedf8616b1d3479fa'	# v4.20.14-6664-gd4c5042d0d78c
+	'da809a2c73eda0a781637253fd3582a320cbdf22'	# v4.20.17-6668-gda809a2c73eda
 	'1b79cb9b70cd9978457a5f0f716255fbd57bcfe4'	# head of master branch
 )
 
