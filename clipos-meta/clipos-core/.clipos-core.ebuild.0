@@ -26,7 +26,6 @@ RDEPEND="
 	sys-process/psmisc
 	virtual/libc
 	virtual/modutils
-	virtual/os-headers
 	virtual/shadow
 "
 
