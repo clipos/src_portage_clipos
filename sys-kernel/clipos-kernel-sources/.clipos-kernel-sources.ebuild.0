@@ -1,0 +1,26 @@
+# Copyright © 2017 ANSSI. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DESCRIPTION="Linux kernel sources pre-configured for CLIP OS"
+HOMEPAGE="https://clip-os.org"
+KEYWORDS="amd64"
+
+inherit clipos-kernel
+
+src_prepare() {
+	clipos-kernel_compute_configuration
+
+	eapply_user  # mandatory by EAPI=6
+}
+
+src_compile() {
+	: # Nothing to do
+}
+
+src_install() {
+	clipos-kernel_install_sources
+}
+
+# vim: set ts=8 sts=8 sw=8 noet tw=79:

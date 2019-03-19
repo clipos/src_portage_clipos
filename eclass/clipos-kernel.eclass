@@ -265,6 +265,13 @@ clipos-kernel_install_modules() {
 		"${D}/lib/modules/${kernel_versionstring_compiled}/source"
 }
 
+clipos-kernel_install_sources() {
+	into "/usr/src"
+	mv "${S%%/}" "${ED}/usr/src/linux-${PV}$(clipos-kernel_localversion)"
+	rm -rf "${ED}/usr/src/linux-${PV}$(clipos-kernel_localversion)/.git"
+	dosym "linux-${PV}$(clipos-kernel_localversion)" "/usr/src/linux"
+}
+
 clipos-kernel_install_firmwares() {
 	# Install hardware profiles and firmware files
 	local hardware_repo_checkout="$(basename -- "${CROS_WORKON_DESTDIR[1]}")"
