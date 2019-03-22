@@ -11,11 +11,12 @@ SLOT="0"
 KEYWORDS="amd64"
 IUSE="clipos-instru-devel"
 
-# Secure Boot support
+# Secure Boot and Trusted Boot support
 RDEPEND+="
 	app-crypt/sbsigntools
 	app-crypt/efitools
 	sys-firmware/edk2-ovmf
+	app-crypt/tpm2-tools
 "
 
 # dracut to produce an initramfs
