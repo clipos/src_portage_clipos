@@ -1,0 +1,37 @@
+# Copyright © 2019 ANSSI. All rights reserved.
+# Distributed under the terms of the GNU General Public License v2
+
+EAPI=7
+
+DESCRIPTION="CLIP OS specific dracut modules"
+HOMEPAGE="https://clip-os.org"
+
+LICENSE="LGPL-2.1+"
+SLOT="0"
+KEYWORDS="amd64"
+IUSE="clipos-instru-devel"
+
+RDEPEND="sys-kernel/dracut"
+
+S="${WORKDIR}"
+
+src_install() {
+	modules=(
+		"10clipos-core-verity"
+		"90clipos-boot-failed"
+	)
+
+	moddir="/usr/lib/dracut/modules.d"
+	dodir "${moddir}"
+
+	for module in ${modules[@]}; do
+		cp --recursive --preserve=mode,timestamp \
+			"${FILESDIR}/${module}" "${ED}/${moddir}/${module}"
+	done
+
+	if use clipos-instru-devel; then
+		# Enable debug root shell in initramfs if something fails during bootup
+		cat "${FILESDIR}/90clipos-boot-failed/boot-failed.service.instrumented" \
+			>> "${ED}/${moddir}/90clipos-boot-failed/boot-failed.service"
+	fi
+}
