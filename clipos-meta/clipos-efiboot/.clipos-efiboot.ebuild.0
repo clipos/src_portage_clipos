@@ -22,6 +22,7 @@ RDEPEND+="
 # dracut to produce an initramfs
 RDEPEND+="
 	sys-kernel/dracut
+	sys-kernel/dracut-clipos-modules
 "
 # The runtime dependencies needed to make dracut work and which are not marked
 # as rdeps in dracut because they are part of the system profile (see "Implicit
