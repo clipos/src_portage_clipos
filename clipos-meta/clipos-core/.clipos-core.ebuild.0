@@ -64,6 +64,7 @@ RDEPEND+="
 		app-text/tree
 		dev-util/strace
 		net-misc/iputils
+		sys-apps/findutils
 		sys-apps/grep
 		sys-apps/iproute2
 		sys-apps/less
