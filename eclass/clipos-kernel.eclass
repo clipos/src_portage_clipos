@@ -76,15 +76,15 @@ ARCH=${ARCH/amd64/x86_64}
 RDEPEND=""
 DEPEND="${RDEPEND}
 	app-arch/lz4
-	sys-apps/gawk
-	sys-apps/kmod[lzma]
-	sys-apps/net-tools
 	sys-devel/bc
-	sys-devel/binutils
-	sys-devel/gcc
-	sys-devel/make
-	sys-kernel/linux-firmware
+	sys-apps/net-tools
 "
+if [[ "${PN}" == 'clipos-kernel' ]]; then
+	DEPEND+="
+		sys-apps/kmod[lzma]
+		sys-kernel/linux-firmware
+	"
+fi
 
 clipos-kernel_localversion() {
 	local localversion=''

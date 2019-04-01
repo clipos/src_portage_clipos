@@ -1,1 +1,6 @@
+# Since we make use of XZ compression method (which seems to be the most
+# efficient compression method) for the kernel modules in the CLIP OS kernel
+# configuration, we need to make sure that the library and tools for managing
+# linux kernel modules (i.e. kmod) has the LZMA support (XZ is part of the LZMA
+# compression algorithms):
 sys-apps/kmod lzma
