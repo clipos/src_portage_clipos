@@ -594,3 +594,5 @@ pkg_prerm() {
 		rm -f -v "${EROOT}"/var/lib/systemd/catalog/database
 	fi
 }
+
+# vim: set ts=8 sts=8 sw=8 ai noet:
