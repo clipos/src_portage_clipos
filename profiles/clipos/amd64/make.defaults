@@ -1,8 +1,10 @@
 USE="-bindist"
 
 # Enable optimizations for common x86_64 CPUs
-CFLAGS=" -O2 -pipe -mtune=generic"
-CXXFLAGS=" ${CFLAGS}"
+CFLAGS="-O2 -pipe -mtune=generic"
+CXXFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
 
-# Exclude documentation
+# Exclude documentation when installing packages:
 FEATURES="nodoc noinfo noman"
