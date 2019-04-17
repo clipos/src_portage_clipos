@@ -19,9 +19,6 @@ RDEPEND="
 	sys-apps/kbd
 	sys-apps/systemd[clipos]
 	sys-apps/util-linux
-	sys-devel/binutils
-	sys-libs/libcap
-	sys-libs/zlib
 	sys-process/procps
 	sys-process/psmisc
 	virtual/libc
@@ -37,12 +34,6 @@ RDEPEND+="
 
 # Everything needed for updates.
 RDEPEND+="
-"
-
-# Needed for configure step and removed before bundle
-RDEPEND+="
-	sys-apps/gawk
-	sys-apps/sed
 "
 
 # Kernel and hardware support
