@@ -44,7 +44,7 @@ case "${PV:-0}" in
 	5.0.9)
 		CROS_WORKON_COMMIT=(
 			'11ff582db7929222b55b401eb084593d3f5971a4' # v5.0.9-8596-g11ff582db7929
-			'c2eb6f31060c455812a442187c4797a1ce6442bc' # head of master branch
+			'555c438b95d5e6abbb5f8bfc10700aaf9e58c788' # head of master branch
 		)
 		;;
 	9999)
