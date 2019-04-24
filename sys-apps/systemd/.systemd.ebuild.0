@@ -16,6 +16,11 @@ inherit cros-workon
 
 inherit bash-completion-r1 linux-info meson multilib-minimal ninja-utils pam python-any-r1 systemd toolchain-funcs udev user
 
+# [CLIP OS]
+# clipos-product-info eclass is required to access the product properies
+# available within SDK container instance (i.e. get_shortname)
+inherit clipos-product-info
+
 DESCRIPTION="System and service manager for Linux"
 HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
 
@@ -318,7 +323,9 @@ multilib_src_configure() {
 		-Dsplit-usr=true
 
 		-Dhwdb=true
-		-Dfallback-hostname=clipos
+		# Hostname fallback to CLIP OS (or derivative) product
+		# shortname (e.g. "clipos" for CLIP OS product):
+		-Dfallback-hostname="$(get_shortname)"
 		-Ddefault-hierarchy=unified
 		-Dtmpfiles=true
 
