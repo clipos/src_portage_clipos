@@ -12,18 +12,57 @@ SLOT="0"
 KEYWORDS="amd64"
 IUSE="clipos_instrumentations_instrumented-core"
 
+# Maintainers: please keep the RDEPEND atom list sorted within their logic
+# block in order not to mess the Git diffs. Thank you.
+
+# Packages originally part of Gentoo's @system set:
+#
+# Bit of context: Packages that are part of the @system Portage set (see
+# "System set (Portage)" on Gentoo docs) are always assumed to exist by other
+# ebuilds of the Portage tree (see "Implicit System Dependency" part of the
+# "Dependencies" page on Gentoo official docs). However, we do not install this
+# @system package set from Portage because it contains way too much packages
+# for our use-case. This is explained by the fact that the @system set (as the
+# upstream Portage profiles defines it) is tailored for environments where the
+# user/administrator has a direct access and requires tools (e.g. a package
+# manager with virtual/package-manager, a usable shell with apps-shells/bash,
+# etc.) which is not our case and we do not want to manage this case.
+#
+# This runtime-dependencies declaration block contains packages normally part
+# of the @system set but still required implicitly by the other ebuilds (e.g.
+# util-linux and coreutils packages are quite essential packages in a Linux
+# environment, therefore we list them here).
+#
+# Remarks:
+#
+#   - "sys-apps/baselayout" is always the very first emerged package in the
+#     detached ROOTs by the SDK build and image scripts. Therefore it is
+#     guaranteed to have been emerged before we emerge this current ebuild.
+#     But for the sake of completeness, let's still mark baselayout as a
+#     runtime dependency to this meta-ebuild.
+#
+#   - In order to avoid the need of a shell interpreter (i.e. "app-shells/bash"
+#     in a Gentoo context, which is part of the @system set and also provides
+#     "/bin/sh"), you are advised to check that there is no shell script in the
+#     core that appear to be necessary to its functioning. This also includes
+#     any shell scripts that may be invoked via a chroot call (hopefully there
+#     should not be a lot of those) during the cosmk configure step.
+#     Tip: To roughly find out the shell scripts in a detached root:
+#         grep -rE '^#! */(usr/)?bin/(env +|)(ba)?sh' "$ROOT"
+#
 RDEPEND="
-	app-shells/bash
 	sys-apps/baselayout
 	sys-apps/coreutils
 	sys-apps/kbd
-	sys-apps/systemd
 	sys-apps/util-linux
-	sys-process/procps
-	sys-process/psmisc
 	virtual/libc
 	virtual/modutils
 	virtual/shadow
+"
+
+# The services and system manager
+RDEPEND+="
+	sys-apps/systemd
 "
 
 # Everything needed to mount the partitions.
@@ -41,32 +80,57 @@ RDEPEND+="
 	sys-kernel/clipos-kernel
 "
 
-# Remote access and management
+# Remote access and management:
+#
+# FIXME: Admin and Audit users are accessible via SSH and have /bin/bash as
+# their default login shell. As we do not yet have specific cages/rootfs for
+# remote management via SSH, we need to keep Bash in the Core for now.
 RDEPEND+="
+	app-shells/bash
 	net-misc/openssh
 "
 
-# Everything needed for debug only.
-# TODO: Move bash, coreutils, procps, psmisc here?
+# Everything needed when built as instrumented.
+# Note: most of those packages come from the @system set.
 RDEPEND+="
 	clipos_instrumentations_instrumented-core? (
+		app-arch/bzip2
+		app-arch/gzip
+		app-arch/tar
+		app-arch/xz-utils
 		app-editors/vim
 		app-misc/tmux
 		app-text/tree
 		dev-util/strace
 		net-misc/iputils
+		net-misc/wget
+		sys-apps/busybox
+		sys-apps/diffutils
+		sys-apps/file
 		sys-apps/findutils
+		sys-apps/gawk
 		sys-apps/grep
 		sys-apps/iproute2
 		sys-apps/less
 		sys-apps/net-tools
-		virtual/pager
+		sys-apps/sed
+		sys-devel/binutils
 		sys-devel/gdb
+		sys-devel/patch
+		sys-process/procps
+		sys-process/psmisc
+		virtual/pager
 	)
 "
 
-# This is a meta-package, no build dependency needed and no need to create S.
+# This is a meta-package, there is no build dependency (except the ones
+# required by eclasses inherited here, but those eclass will append their
+# build-time dependencies automatically to this variable):
 DEPEND=""
+
+# This is a meta-package, there is no underlying source code for this.
+# Therefore, no need to create S (i.e. the path to the temporary build
+# directory):
 S="${WORKDIR}"
 
 # vim: set ts=4 sts=4 sw=4 noet:
