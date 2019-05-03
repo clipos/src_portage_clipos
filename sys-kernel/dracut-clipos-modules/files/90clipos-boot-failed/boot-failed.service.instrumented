@@ -13,4 +13,4 @@ debugging purposes.                               \n\
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n\
                                                   \n\
 '
-ExecStart=-/bin/systemctl --no-block isolate emergency.target"
+ExecStart=-/bin/systemctl --no-block isolate emergency.target
