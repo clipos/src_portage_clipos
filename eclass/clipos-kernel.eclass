@@ -40,7 +40,7 @@ CROS_WORKON_DESTDIR=(
 	"${S}"
 	"${S}/hardware"
 )
-case "${PV:-0}" in
+case "${PVR:-0}" in
 	5.0.14)
 		CROS_WORKON_COMMIT=(
 			'e09bfcd5a2d6699ba6a3679ed5d633765fcd5cd5' # v5.0.14-8600-ge09bfcd5a2d66
