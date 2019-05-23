@@ -4,7 +4,7 @@
 EAPI=6
 
 PYTHON_REQ_USE="sqlite"
-PYTHON_COMPAT=( python2_7 )
+PYTHON_COMPAT=( python3_6 )
 
 inherit eutils python-any-r1
 
@@ -26,9 +26,9 @@ if [[ ${PV} == "9999" ]] ; then
 	EGIT_BRANCH="master"
 	KEYWORDS="~amd64"
 else
-	RELEASE_NAME="edk2-stable201811"
+	RELEASE_NAME="edk2-stable$PV"
 	SRC_URI="https://github.com/tianocore/edk2/archive/${RELEASE_NAME}.tar.gz -> ${P}.tar.gz"
-	OPENSSL_PV="1.1.0h"
+	OPENSSL_PV="1.1.0j"
 	OPENSSL_P="openssl-${OPENSSL_PV}"
 	SRC_URI+=" mirror://openssl/source/${OPENSSL_P}.tar.gz"
 	KEYWORDS="amd64"
