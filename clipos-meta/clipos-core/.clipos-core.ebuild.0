@@ -102,6 +102,7 @@ RDEPEND+="
 		app-misc/tmux
 		app-text/tree
 		dev-util/strace
+		net-analyzer/tcpdump
 		net-misc/iputils
 		net-misc/wget
 		sys-apps/busybox
