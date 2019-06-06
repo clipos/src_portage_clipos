@@ -44,7 +44,7 @@ case "${PVR:-0}" in
 	5.0.21)
 		CROS_WORKON_COMMIT=(
 			'b079ace3d423bc53448b0717155381b5e2ec81e3' # v5.0.21-8605-gb079ace3d423
-			'c5625ac07a3ef0bb6b7b9a144df618b85cd99424' # head of master branch
+			'fed478a2485e10ed8b846a1af8b35d82b8d79e65' # head of master branch
 		)
 		;;
 	9999)
@@ -113,7 +113,6 @@ clipos-kernel_compute_configuration() {
 		feature/lockdown
 		)
 	if use debug; then
-		ewarn "Setting DEBUG options"
 		configsets+=(debug)
 	fi
 	if use ipv6; then
@@ -130,7 +129,7 @@ clipos-kernel_compute_configuration() {
 	# "make-config.sh" expects some environement variables to process the
 	# configsets, do not forget them:
 	CONFIGDIR="${CROS_WORKON_DESTDIR[1]}" S="$S" ARCH="$ARCH" \
-		DEBUG=$(use debug) \
+		DEBUG=$(usex debug 1 0) \
 		"${CROS_WORKON_DESTDIR[1]}/make-config.sh" "${configsets[@]}"
 
 	# Workaround to prevent '+' sign from being appended to the local version
@@ -152,6 +151,7 @@ clipos-kernel_compute_configuration() {
 	# configset because they are already set in other configsets) to ease
 	# debugging
 	if use debug ; then
+		ewarn "Setting DEBUG options"
 		clipos-kernel_unset_opt "CONFIG_PANIC_ON_OOPS"
 		clipos-kernel_set_opt "CONFIG_PANIC_TIMEOUT" 0
 	fi
