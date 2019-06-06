@@ -41,10 +41,10 @@ CROS_WORKON_DESTDIR=(
 	"${S}/hardware"
 )
 case "${PVR:-0}" in
-	5.0.21)
+	5.1.8)
 		CROS_WORKON_COMMIT=(
-			'b079ace3d423bc53448b0717155381b5e2ec81e3' # v5.0.21-8605-gb079ace3d423
-			'fed478a2485e10ed8b846a1af8b35d82b8d79e65' # head of master branch
+			'5713700fe6a0a6df8bf3086588ed5d974fdd2416' # v5.1.8-11101-g5713700fe6a0
+			'8ce19d2b5096c13c797936b0a113ef951bfca56e' # head of master branch
 		)
 		;;
 	9999)
@@ -138,14 +138,12 @@ clipos-kernel_compute_configuration() {
 	# Append revision and distro name to kernel local version
 	clipos-kernel_set_opt "CONFIG_LOCALVERSION" "\"$(clipos-kernel_localversion)\""
 
-	# Set default security module
+	# Set Linux Security Modules stacking
+	local lsm_ordered_list="yama"
 	if use selinux ; then
-		clipos-kernel_set_opt "CONFIG_DEFAULT_SECURITY_SELINUX" "y"
-		clipos-kernel_set_opt "CONFIG_DEFAULT_SECURITY" "\"selinux\""
-	else
-		clipos-kernel_set_opt "CONFIG_DEFAULT_SECURITY_DAC" "y"
-		clipos-kernel_set_opt "CONFIG_DEFAULT_SECURITY" "\"\""
+		lsm_ordered_list+=",selinux"
 	fi
+	clipos-kernel_set_opt "CONFIG_LSM" "\"$lsm_ordered_list\""
 
 	# (Un)set some Kconfig options (that we cannot handle with the debug
 	# configset because they are already set in other configsets) to ease
@@ -171,7 +169,7 @@ clipos-kernel_set_opt() {
 	# "substitute" sed command below and potential special chars may
 	# trigger unexpected behavior of sed when inserting the requested
 	# value. Better safe than sorry.
-	if [[ ! "${optval:-}" =~ ^[a-zA-Z0-9\ \.\_\/\"\-]*$ ]]; then
+	if [[ ! "${optval:-}" =~ ^[a-zA-Z0-9\ \.\_\/\"\,\-]*$ ]]; then
 		eerror "clipos-kernel_set_opt() do not handle kernel configuration value setting"
 		eerror "with special chars in them."
 		eerror "  Option name: ${optname}"
