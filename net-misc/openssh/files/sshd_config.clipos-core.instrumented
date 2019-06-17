@@ -1,5 +1,5 @@
 
-# CLIP OS Core development & debug configuration
+# CLIP OS Core instrumented configuration
 AllowUsers root admin audit
 PermitRootLogin without-password
 

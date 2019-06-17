@@ -3,13 +3,13 @@
 
 EAPI=6
 
-DESCRIPTION="Configuration for everything that should be in the initrd & EFI partition"
+DESCRIPTION="Meta package to build the EFI boot partition content"
 HOMEPAGE="https://clip-os.org"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="clipos-instru-devel"
+IUSE="clipos_instrumentations_instrumented-initramfs"
 
 # Secure Boot and Trusted Boot support
 RDEPEND+="
@@ -52,7 +52,7 @@ RDEPEND+="
 # Everything needed for debug only.
 # Note that those tools still need to be added to the initramfs by dracut.
 RDEPEND+="
-	clipos-instru-devel? (
+	clipos_instrumentations_instrumented-initramfs? (
 		dev-util/strace
 		dev-util/ltrace
 		sys-apps/less

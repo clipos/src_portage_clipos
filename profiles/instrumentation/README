@@ -1,0 +1,6 @@
+These "parts of Portage profiles" are intended to be composed with usual
+Portage profiles that are defined in the "profiles.desc" file sitting at the
+root of the Portage profiles in this Portage overlay.
+
+This composition is done by the "setup-portage.sh" script launched in the SDK
+at spawn time.

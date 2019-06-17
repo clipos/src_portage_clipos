@@ -30,7 +30,8 @@ fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="debug ipv6 selinux"
+IUSE="ipv6 selinux"
+IUSE+=" clipos_instrumentations_debuggable-kernel"
 
 CROS_WORKON_PROJECT=(
 	'external/linux'                  # Linux kernel
@@ -111,7 +112,7 @@ clipos-kernel_compute_configuration() {
 		feature/linux-hardened
 		feature/lockdown
 		)
-	if use debug; then
+	if use clipos_instrumentations_debuggable-kernel; then
 		configsets+=(debug)
 	fi
 	if use ipv6; then
@@ -128,7 +129,7 @@ clipos-kernel_compute_configuration() {
 	# "make-config.sh" expects some environement variables to process the
 	# configsets, do not forget them:
 	CONFIGDIR="${CROS_WORKON_DESTDIR[1]}" S="$S" ARCH="$ARCH" \
-		DEBUG=$(usex debug 1 0) \
+		DEBUG=$(usex clipos_instrumentations_debuggable-kernel 1 0) \
 		"${CROS_WORKON_DESTDIR[1]}/make-config.sh" "${configsets[@]}"
 
 	# Workaround to prevent '+' sign from being appended to the local version
@@ -147,7 +148,7 @@ clipos-kernel_compute_configuration() {
 	# (Un)set some Kconfig options (that we cannot handle with the debug
 	# configset because they are already set in other configsets) to ease
 	# debugging
-	if use debug ; then
+	if use clipos_instrumentations_debuggable-kernel; then
 		ewarn "Setting DEBUG options"
 		clipos-kernel_unset_opt "CONFIG_PANIC_ON_OOPS"
 		clipos-kernel_set_opt "CONFIG_PANIC_TIMEOUT" 0

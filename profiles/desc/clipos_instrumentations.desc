@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# Copyright © 2019 ANSSI. All rights reserved.
+
+# This file contains descriptions of CLIPOS_INSTRUMENTATIONS flags.
+# Please keep in mind that most of those USE flags may not be meaningful in
+# Portage context (i.e. in the ebuilds) but may rather be heavily used in
+# configure scripts.
+
+# Keep it sorted.
+
+allow-ssh-root-login - Allow root login via SSH and configure a dummy SSH key for root
+breakpointed-initramfs - Spawns shell console breakpoints in initramfs at bootup
+coredump-handler - Installs a core dump handler with systemd
+debuggable-initramfs - Alterations to initramfs/efiboot packages intended to ease their debugging
+debuggable-kernel - Activates features for debugging purposes in the kernel (KALLSYMS, core dumps, etc.)
+dev-friendly-bootloader - Configure the bootloader for developer convenience
+early-root-shell - Early root interactive shell in bootup sequence to debug systemd startup
+initramfs-no-require-tpm - Do not require a TPM for the initramfs and activates the LUKS passphrase invite
+initramfs-no-tpm-lockout - Enable the option "noDA" (no dictionary attacks) when dealing with the TPM in the initramfs
+instrumented-core - Install additional software development tools in the Core
+instrumented-initramfs - Install additional software development tools in the initramfs
+passwordless-root-login - Enables root user and sets no password for login
+soften-kernel-configuration - Lower security level for the kernel configuration (sysctls)
+verbose-systemd - Make systemd startup verbose

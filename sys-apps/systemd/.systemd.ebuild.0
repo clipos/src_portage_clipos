@@ -25,7 +25,10 @@ HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="acl apparmor audit build cryptsetup curl elfutils +gcrypt gnuefi http idn importd +kmod libidn2 +lz4 lzma nat pam pcre policykit qrcode +resolvconf +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb"
-IUSE="${IUSE} firstboot sysusers networkd clipos clipos-instru-devel"
+# CLIP OS specific use flags
+IUSE+=" firstboot sysusers networkd"
+IUSE+=" clipos"
+IUSE+=" clipos_instrumentations_coredump-handler clipos_instrumentations_early-root-shell"
 
 REQUIRED_USE="importd? ( curl gcrypt lzma )"
 RESTRICT="!test? ( test )"
@@ -339,9 +342,12 @@ multilib_src_configure() {
 		# FIXME: Enabled only for the QEMU target
 		-Dnetworkd=$(meson_multilib_native_use networkd)
 
-		# Enabled only for development & debug
-		-Dcoredump=$(usex clipos-instru-devel true false)
-		-Ddebug-shell=$(usex clipos-instru-devel /bin/bash /sbin/nologin)
+		# Install systemd-coredump handler
+		-Dcoredump=$(usex clipos_instrumentations_coredump-handler true false)
+
+		# Which shell to spawn when the "early-root-shell"
+		# instrumentation feature is enabled?
+		-Ddebug-shell=$(usex clipos_instrumentations_early-root-shell /bin/bash /sbin/nologin)
 
 		# Always disabled
 		-Dima=false

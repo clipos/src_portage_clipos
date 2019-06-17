@@ -1,0 +1,1 @@
+CLIPOS_INSTRUMENTATIONS="initramfs-no-require-tpm"
