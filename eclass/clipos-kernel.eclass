@@ -92,6 +92,13 @@ clipos-kernel_localversion() {
 		localversion+="-${PR}"
 	fi
 	localversion+="-$(get_shortname)"
+	local iuse_item=''
+	for iuse_item in ${IUSE:-}; do
+		if [[ "${iuse_item#+}" =~ ^clipos_instrumentations_ ]] && use "${iuse_item#+}"; then
+			localversion+="+instrumented"
+			break  # no need to continue if we found an instrumentation USE flag
+		fi
+	done
 	echo "${localversion}"
 }
 
@@ -169,7 +176,7 @@ clipos-kernel_set_opt() {
 	# "substitute" sed command below and potential special chars may
 	# trigger unexpected behavior of sed when inserting the requested
 	# value. Better safe than sorry.
-	if [[ ! "${optval:-}" =~ ^[a-zA-Z0-9\ \.\_\/\"\,\-]*$ ]]; then
+	if [[ ! "${optval:-}" =~ ^[a-zA-Z0-9\ \.\_\/\"\,\+\-]*$ ]]; then
 		eerror "clipos-kernel_set_opt() do not handle kernel configuration value setting"
 		eerror "with special chars in them."
 		eerror "  Option name: ${optname}"
