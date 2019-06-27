@@ -1,0 +1,10 @@
+# Do not use "non-root" as we do not manage users creation within ebuilds.
+# Hardening changes will be directly added to the strongswan systemd unit.
+net-vpn/strongswan -non-root
+
+# IKEv1 should not be used anymore and won't be in CLIP OS.
+net-vpn/strongswan -clipos_use_ikev1
+
+# We make use of the newer utility stack in strongSwan (swanctl with
+# charon-systemd) and we do not require the legacy "ipsec" script facility.
+net-vpn/strongswan -clipos_use_legacy-ipsec-script
