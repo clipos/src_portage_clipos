@@ -59,8 +59,7 @@ esac
 # cros-workon eclass inheritage will inherit the proper src_unpack functions
 inherit cros-workon
 
-# clipos-product-info is required to access the SDK runtime properies of the
-# target product (i.e. get_shortname)
+# To get a default name to set as hostname
 inherit clipos-product-info
 
 inherit eutils   # required for emktemp
