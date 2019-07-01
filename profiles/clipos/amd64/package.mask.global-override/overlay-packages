@@ -2,4 +2,5 @@
 # from this overlay
 net-misc/openssh::gentoo
 sys-apps/systemd::gentoo
+sys-firmware/edk2-ovmf::gentoo
 virtual/linux-sources::gentoo
