@@ -1,0 +1,5 @@
+# Do not use High Performance SSH (see: https://www.psc.edu/hpn-ssh)
+net-misc/openssh -hpn
+
+# Do not prefer Dropbear over OpenSSH
+virtual/ssh -minimal

@@ -43,7 +43,7 @@ RDEPEND+="
 
 # Remote access and management
 RDEPEND+="
-	net-misc/openssh[clipos]
+	net-misc/openssh
 "
 
 # Everything needed for debug only.

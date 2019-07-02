@@ -1,7 +1,5 @@
 # No support for cramfs in mkfs/fsck utilities required
 sys-apps/util-linux -cramfs
 
-net-misc/openssh -hpn
-virtual/ssh -minimal
 # No support for LVM thin volumes required
 sys-fs/lvm2 -thin
