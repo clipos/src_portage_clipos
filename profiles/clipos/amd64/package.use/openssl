@@ -1,0 +1,2 @@
+# Disable unsafe/broken features of OpenSSL/TLS
+dev-libs/openssl -sslv3 -tls-heartbeat
