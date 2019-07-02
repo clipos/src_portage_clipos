@@ -7,17 +7,26 @@ USE="-bindist"
 
 # In order not to collide with upstream Gentoo USE flags, we make use of the
 # USE_EXPAND feature of Portage to create "USE flag namespaces" specific to the
-# CLIP OS project.
-# That kind of namespaces is intended to hold a set of USE flags that *MUST*
-# always be meaningful in a CLIP OS (or any of its derivative) build context.
+# CLIP OS project. That kind of namespaces is intended to hold a set of USE
+# flags that *MUST* always be meaningful in a CLIP OS (or any of its
+# derivative) build context.
 #
 # Quick reference:
 #
-# * CLIPOS_INSTRUMENTATIONS:
-#     Our CLIP OS use flag namespace that holds the cosmk product
-#     instrumentation features currently active.
+# CLIPOS_INSTRUMENTATIONS:
+#   Our CLIP OS use flag namespace that holds the cosmk product instrumentation
+#   features currently active.
 #
-USE_EXPAND="CLIPOS_INSTRUMENTATIONS"
+# CLIPOS_USE:
+#   The CLIP OS project "USE flag namespace" that is intended to hold USE flags
+#   that are of interest but are not managed by the Gentoo upstream project.
+#   Some of the USE flags fitting in this namespace may be suggested to the
+#   Gentoo project for upstream integration. The rationale behind the use of a
+#   dedicated "USE_EXPAND" with a "clipos" prefix is to prevent any collision
+#   with potential upcoming USE flags similarly named (and which may have
+#   different meaning than ours).
+#
+USE_EXPAND="CLIPOS_INSTRUMENTATIONS CLIPOS_USE"
 
 # Enable optimizations for common x86_64 CPUs
 CFLAGS="-O2 -pipe -mtune=generic"
