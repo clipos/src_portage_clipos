@@ -1,4 +1,37 @@
 # Default set of useflags for the systemd ebuild.
 # Only flags common to all targets and the SDK are listed here.
-# vanilla: We do not use Gentoo integration
-sys-apps/systemd acl -apparmor -audit -build elfutils -importd kmod -libidn2 lz4 -lzma -nat pam pcre -policykit -qrcode seccomp -selinux -test vanilla xkb
+
+# We do not use Gentoo integration
+sys-apps/systemd vanilla
+
+# Seccomp support
+sys-apps/systemd seccomp
+
+# Enable cryptsetup-powered features (i.e. required for crypttab
+# interpretation)
+sys-apps/systemd cryptsetup
+
+# No MAC system integrated yet
+sys-apps/systemd -apparmor -selinux
+
+# Allow systemd to load kernel modules with utilities provided by the
+# sys-apps/kmod package
+sys-apps/systemd kmod
+
+# Support LZ4 compression but not XZ/LZMA for the journal as it is the
+# recommended option according to
+# <https://github.com/systemd/systemd/blob/master/NEWS#L3964> (mainly for
+# performance reasons)
+sys-apps/systemd lz4 -lzma
+
+# Disable audit support for now until auditd is added to the core
+sys-apps/systemd -audit
+
+# Disable systemd-journal-{gatewayd,remote,upload} as we do not yet use them
+sys-apps/systemd -curl -http
+
+# libidn2 support is not yet stable
+sys-apps/systemd idn -libidn2
+
+# Unneeded features and attack surface reduction purposes
+sys-apps/systemd -importd -nat -policykit -qrcode -xkb -ssl -gcrypt

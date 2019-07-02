@@ -1,1 +1,24 @@
-sys-apps/systemd cryptsetup curl gcrypt -gnuefi http idn ssl sysv-utils networkd
+# Set of useflags for the systemd ebuild.
+# Only flags specific to the core target are listed here.
+
+# Install sysvinit compatibility symlinks and manpages for init, telinit, halt,
+# poweroff, reboot, runlevel, and shutdown:
+sys-apps/systemd sysv-utils
+
+# Use systemd-networkd as a temporary network manager daemon
+sys-apps/systemd clipos_use_networkd
+
+# Enable pcre support for journalctl
+sys-apps/systemd pcre
+
+# File system ACLs support is required for systemd-journald to ensure
+# unprivileged users get read access only to the files in /var/log/journal (the
+# files are not owned by the users)
+sys-apps/systemd acl
+
+# Enable coredumps stacktraces in the journal when core dumps are produced
+# (requires an instrumentation feature to do so)
+sys-apps/systemd elfutils
+
+# Disable unrequired features
+sys-apps/systemd -gnuefi

@@ -26,8 +26,7 @@ LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
 IUSE="acl apparmor audit build cryptsetup curl elfutils +gcrypt gnuefi http idn importd +kmod libidn2 +lz4 lzma nat pam pcre policykit qrcode +resolvconf +seccomp selinux +split-usr ssl +sysv-utils test vanilla xkb"
 # CLIP OS specific use flags
-IUSE+=" firstboot sysusers networkd"
-IUSE+=" clipos"
+IUSE+=" clipos_use_sysusers clipos_use_networkd"
 IUSE+=" clipos_instrumentations_coredump-handler clipos_instrumentations_early-root-shell"
 
 REQUIRED_USE="importd? ( curl gcrypt lzma )"
@@ -158,11 +157,9 @@ src_unpack() {
 }
 
 src_prepare() {
-	# CLIP OS: Do not use Gentoo patches
-	if use clipos; then
-		default
-		return 0
-	fi
+	# CLIP OS: Do not use Gentoo patches as we track systemd-stable
+	default
+	return 0
 
 	# Do NOT add patches here
 	local PATCHES=()
@@ -227,9 +224,10 @@ multilib_src_configure() {
 		-Dsysvrcnd-path=
 		# Avoid infinite exec recursion, bug 642724
 		-Dtelinit-path="${EPREFIX}/lib/sysvinit/telinit"
-		# no deps
-		-Defi=$(meson_multilib)
-		-Dima=true
+		# CLIP OS: Enabled only for efiboot
+		-Defi=$(meson_multilib_native_use gnuefi)
+		# CLIP OS: Unused
+		-Dima=false
 		# Optional components/dependencies
 		-Dacl=$(meson_multilib_native_use acl)
 		-Dapparmor=$(meson_multilib_native_use apparmor)
@@ -262,43 +260,57 @@ multilib_src_configure() {
 		-Dkill-path=/bin/kill
 		-Dntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
 		# Breaks screen, tmux, etc.
-		-Ddefault-kill-user-processes=false
+		# CLIP OS: Intended behaviour (no persistence beyond session lifetime)
+		-Ddefault-kill-user-processes=true
 
 		# multilib options
 		-Dbacklight=$(meson_multilib)
-		-Dbinfmt=$(meson_multilib)
-		-Dcoredump=$(meson_multilib)
+		# CLIP OS: Disabled binfmt support
+		-Dbinfmt=false
+		# CLIP OS: Install systemd-coredump handler only for debug
+		-Dcoredump=$(meson_multilib_native_use clipos_instrumentations_coredump-handler)
 		-Denvironment-d=$(meson_multilib)
 		-Dfirstboot=$(meson_multilib)
-		-Dhibernate=$(meson_multilib)
-		-Dhostnamed=$(meson_multilib)
+		# CLIP OS: Hibernation not supported for now (ephemeral swap)
+		-Dhibernate=false
+		# CLIP OS: Disable hostnamed support
+		-Dhostnamed=false
 		-Dhwdb=$(meson_multilib)
 		-Dldconfig=$(meson_multilib)
-		-Dlocaled=$(meson_multilib)
+		# CLIP OS: Disable localed support
+		-Dlocaled=false
 		-Dman=$(meson_multilib)
-		-Dnetworkd=$(meson_multilib)
-		-Dquotacheck=$(meson_multilib)
+		# CLIP OS: Temporarily enabled as system network manager
+		-Dnetworkd=$(meson_multilib_native_use clipos_use_networkd)
+		# CLIP OS: Disabled
+		-Dquotacheck=false
 		-Drandomseed=$(meson_multilib)
 		-Drfkill=$(meson_multilib)
-		-Dsysusers=$(meson_multilib)
-		-Dtimedated=$(meson_multilib)
-		-Dtimesyncd=$(meson_multilib)
+		# CLIP OS: Enabled only for the SDK
+		-Dsysusers=$(meson_multilib_native_use clipos_use_sysusers)
+		# CLIP OS: Disable timedated support
+		-Dtimedated=false
+		# CLIP OS: Disable timesync support
+		-Dtimesyncd=false
 		-Dtmpfiles=$(meson_multilib)
 		-Dvconsole=$(meson_multilib)
 
-		### Options imported from CoreOS
+		# CLIP OS: Always disabled
+		-Dresolve=false
+		-Dmachined=false
+		-Dremote=false
+		-Dnss-myhostname=false
+		-Dhtml=false
 
-		# Specify this, or meson breaks due to no /etc/login.defs
+		# CLIP OS: Specify this, or meson breaks due to no /etc/login.defs
 		-Dsystem-gid-max=999
 		-Dsystem-uid-max=999
 
-		# dbus paths
+		# CLIP OS: dbus paths
 		-Ddbussessionservicedir="${EPREFIX}/usr/share/dbus-1/services"
 		-Ddbussystemservicedir="${EPREFIX}/usr/share/dbus-1/system-services"
 
-		-Dntp-servers="0.clipos.pool.ntp.org 1.clipos.pool.ntp.org 2.clipos.pool.ntp.org 3.clipos.pool.ntp.org"
-
-		# TODO: Investigate
+		# CLIP OS: FIXME: Investigate
 		-Dpamconfdir=/usr/share/pam.d
 
 		# The CLIP OS epoch, Mon January 1 00:00:00 UTC 2018. Used by timesyncd
@@ -306,65 +318,24 @@ multilib_src_configure() {
 		# to avoid using the current build time.
 		-Dtime-epoch=1514764800
 
-		# no default name servers
-		-Ddns-servers=
-
-		# unported options, still needed?
+		# CLIP OS: FIXME: unported options, still needed?
 		-Defi-cc="$(tc-getCC)"
-		-Dquotaon-path=/usr/sbin/quotaon
-		-Dquotacheck-path=/usr/sbin/quotacheck
 
-		### CLIP OS options
-
-		# Enabled for runtime
-		-Ddefault-kill-user-processes=true
-
-		# FIXME: split-usr/usrmerge
+		# CLIP OS: FIXME: split-usr/usrmerge
 		-Drootlibdir="${EPREFIX}/usr/$(get_libdir)"
 		-Dsplit-usr=true
-
-		-Dhwdb=true
 
 		# CLIP OS: Set hostname fallback to product shortname
 		-Dfallback-hostname="$(get_shortname)"
 
+		# CLIP OS: Only use cgroups v2 with a unified hierarchy
 		-Ddefault-hierarchy=unified
-		-Dtmpfiles=true
 
-		# Enabled only for efiboot
-		-Defi=$(meson_multilib_native_use gnuefi)
-		-Dgnu-efi=$(meson_multilib_native_use gnuefi)
-
-		# Enabled only for the SDK
-		-Dfirstboot=$(meson_multilib_native_use firstboot)
-		-Dsysusers=$(meson_multilib_native_use sysusers)
-
-		# FIXME: Enabled only for the QEMU target
-		-Dnetworkd=$(meson_multilib_native_use networkd)
-
-		# Install systemd-coredump handler
-		-Dcoredump=$(usex clipos_instrumentations_coredump-handler true false)
-
-		# Which shell to spawn when the "early-root-shell"
-		# instrumentation feature is enabled?
+		# CLIP OS: Set the shell to spawn when the "early-root-shell"
+		# instrumentation feature is enabled
 		-Ddebug-shell=$(usex clipos_instrumentations_early-root-shell /bin/bash /sbin/nologin)
 
-		# Always disabled
-		-Dima=false
-		-Dhibernate=false
-		-Dresolve=false
-		-Denvironment-d=false
-		-Dbinfmt=false
-		-Dhostnamed=false
-		-Dlocaled=false
-		-Dmachined=false
-		-Dtimedated=false
-		-Dtimesyncd=false
-		-Dremote=false
-		-Dmyhostname=false
-		-Dimportd=false
-		-Dhtml=false
-		# TODO: Disabling this breaks the build later
+		# CLIP OS: Disabling this breaks the build later
 		-Dman=true
 	)
 
@@ -403,10 +374,7 @@ multilib_src_install_all() {
 	mv "${ED}"/usr/share/doc/{systemd,${PF}} || die
 
 	einstalldocs
-	# CLIP OS: Not built
-	if ! use clipos; then
-		dodoc "${FILESDIR}"/nsswitch.conf
-	fi
+	dodoc "${FILESDIR}"/nsswitch.conf
 
 	if ! use resolvconf; then
 		rm -f "${ED}${rootprefix}"/sbin/resolvconf || die
@@ -452,10 +420,10 @@ multilib_src_install_all() {
 		dosym ../../../lib/systemd/systemd-shutdown /usr/lib/systemd/systemd-shutdown
 	fi
 
-	# Don't set any extra environment variables by default
+	# CLIP OS: Don't set any extra environment variables by default
 	# rm "${ED%/}/usr/lib/environment.d/99-environment.conf" || die
 
-	# Remove all default configuration from /etc
+	# CLIP OS: Remove all default configuration from /etc
 	for d in \
 		/etc/systemd/system \
 		/etc/sysctl.d \
@@ -464,35 +432,35 @@ multilib_src_install_all() {
 		rm -rf "${ED%/}"/${d}
 	done
 
-	# Remove nspawn binary, tmpfiles & unit
+	# CLIP OS: Remove nspawn binary, tmpfiles & unit
 	rm "${ED}"/usr/bin/systemd-nspawn
 	rm "${ED}"/usr/lib64/tmpfiles.d/systemd-nspawn.conf
 	rm "${ED}"/lib64/systemd/system/systemd-nspawn@.service
 
-	# Remove /sys/kernel/config & /sys/kernel/debug mounts
+	# CLIP OS: Remove /sys/kernel/config & /sys/kernel/debug mounts
 	rm "${ED}"/lib64/systemd/system/sys-kernel-config.mount
 	rm "${ED}"/lib64/systemd/system/sys-kernel-debug.mount
 
-	# Remove /tmp mount
+	# CLIP OS: Remove /tmp mount
 	rm "${ED}"/lib64/systemd/system/tmp.mount
 
-	# Do not enable random services if /etc was detected as empty!!!
+	# CLIP OS: Do not enable random services if /etc was detected as empty!!!
 	# rm "${ED%/}$(usex split-usr /usr '')/lib/systemd/system-preset/90-systemd.preset" || die
 	insinto $(usex split-usr /usr '')/lib/systemd/system-preset
 	doins "${FILESDIR}"/99-default.preset
 
-	# Do not ship distro-specific files (nsswitch.conf pam.d)
+	# CLIP OS: Do not ship distro-specific files (nsswitch.conf pam.d)
 	rm -rf "${ED%/}"/usr/share/factory
 	sed -i "${ED%/}"/usr/lib/tmpfiles.d/etc.conf \
 		-e '/^C \/etc\/nsswitch\.conf/d' \
 		-e '/^C \/etc\/pam\.d/d'
 
-	# Replace default sysusers configs with fixed UID:GID versions
+	# CLIP OS: Replace default sysusers configs with fixed UID:GID versions
 	insinto /usr/lib/sysusers.d
 	doins "${FILESDIR}"/basic.conf
 	doins "${FILESDIR}"/systemd.conf
 
-	# Install systemd-journald config override
+	# CLIP OS: Install systemd-journald config override
 	insinto /etc/systemd/journald.conf.d/
 	doins "${FILESDIR}"/journald/default.conf
 }
@@ -543,25 +511,23 @@ migrate_locale() {
 
 pkg_postinst() {
 	# CLIP OS: User and groups are created later in the configure step
-	if ! use clipos; then
-		newusergroup() {
-			enewgroup "$1"
-			enewuser "$1" -1 -1 -1 "$1"
-		}
+	# newusergroup() {
+	# 	enewgroup "$1"
+	# 	enewuser "$1" -1 -1 -1 "$1"
+	# }
 
-		enewgroup input
-		enewgroup kvm 78
-		enewgroup render
-		enewgroup systemd-journal
-		newusergroup systemd-bus-proxy
-		newusergroup systemd-coredump
-		newusergroup systemd-journal-gateway
-		newusergroup systemd-journal-remote
-		newusergroup systemd-journal-upload
-		newusergroup systemd-network
-		newusergroup systemd-resolve
-		newusergroup systemd-timesync
-	fi
+	# enewgroup input
+	# enewgroup kvm 78
+	# enewgroup render
+	# enewgroup systemd-journal
+	# newusergroup systemd-bus-proxy
+	# newusergroup systemd-coredump
+	# newusergroup systemd-journal-gateway
+	# newusergroup systemd-journal-remote
+	# newusergroup systemd-journal-upload
+	# newusergroup systemd-network
+	# newusergroup systemd-resolve
+	# newusergroup systemd-timesync
 
 	systemd_update_catalog
 
@@ -577,14 +543,8 @@ pkg_postinst() {
 	# between OpenRC & systemd
 	migrate_locale
 
-	if meson_multilib_native_use networkd; then
-		systemd_reenable systemd-networkd.service
-	fi
-
-	# TODO
-	# if meson_multilib_native_use resolved; then
-	# 	systemd_reenable systemd-resolved.service
-	# fi
+	# CLIP OS: Required services are re-enabled in the configure step
+	# systemd_reenable systemd-networkd.service systemd-resolved.service
 
 	if [[ -z ${ROOT} && -d /run/systemd/system ]]; then
 		ebegin "Reexecuting system manager"

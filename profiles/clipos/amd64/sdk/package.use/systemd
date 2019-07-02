@@ -1,4 +1,10 @@
+# Set of useflags for the systemd ebuild.
+# Only flags specific to the sdk target are listed here.
 # We are in a SDK: systemd package is emerged only for the tooling it provides,
-# not for managing services. Therefore, disable as much as possible and enable
-# only firstboot and sysusers.
-sys-apps/systemd -cryptsetup -curl -gcrypt -gnuefi -http -idn -ssl -sysv-utils firstboot sysusers
+# not for managing services.
+
+# Enable sysusers tool
+sys-apps/systemd clipos_use_sysusers
+
+# Disable unneeded features
+sys-apps/systemd -cryptsetup -gnuefi -idn -sysv-utils

@@ -1,1 +1,8 @@
-sys-apps/systemd cryptsetup -gcrypt gnuefi -http -ssl -sysv-utils
+# Set of useflags for the systemd ebuild.
+# Only flags specific to the efiboot target are listed here.
+
+# systemd-boot (formerly gummiboot) with gnuefi support
+sys-apps/systemd gnuefi
+
+# Disable unrequired features
+sys-apps/systemd -sysv-utils -pcre -acl -elfutils
