@@ -1,3 +1,3 @@
-amd64   clipos/amd64/core                   dev
-amd64   clipos/amd64/efiboot                dev
-amd64   clipos/amd64/sdk                    dev
+amd64   clipos/arch/amd64/core                   dev
+amd64   clipos/arch/amd64/efiboot                dev
+amd64   clipos/arch/amd64/sdk                    dev
