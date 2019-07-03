@@ -447,7 +447,7 @@ multilib_src_install_all() {
 	# CLIP OS: Do not enable random services if /etc was detected as empty!!!
 	# rm "${ED%/}$(usex split-usr /usr '')/lib/systemd/system-preset/90-systemd.preset" || die
 	insinto $(usex split-usr /usr '')/lib/systemd/system-preset
-	doins "${FILESDIR}"/99-default.preset
+	doins "${FILESDIR}"/clipos/99-default.preset
 
 	# CLIP OS: Do not ship distro-specific files (nsswitch.conf pam.d)
 	rm -rf "${ED%/}"/usr/share/factory
@@ -457,12 +457,12 @@ multilib_src_install_all() {
 
 	# CLIP OS: Replace default sysusers configs with fixed UID:GID versions
 	insinto /usr/lib/sysusers.d
-	doins "${FILESDIR}"/basic.conf
-	doins "${FILESDIR}"/systemd.conf
+	doins "${FILESDIR}"/clipos/basic.conf
+	doins "${FILESDIR}"/clipos/systemd.conf
 
 	# CLIP OS: Install systemd-journald config override
 	insinto /etc/systemd/journald.conf.d/
-	doins "${FILESDIR}"/journald/default.conf
+	doins "${FILESDIR}"/clipos/journald/default.conf
 }
 
 migrate_locale() {
