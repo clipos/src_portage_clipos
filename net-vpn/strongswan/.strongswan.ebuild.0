@@ -218,6 +218,20 @@ src_install() {
 
 	# CLIP OS: Rename unit (will be default from 5.8.0)
 	mv "${D}/$(systemd_get_systemunitdir)/strongswan"{-swanctl,}".service"
+
+	# CLIP OS: Install systemd unit hardening configuration
+	insinto /lib/systemd/system/strongswan.service.d
+	doins "${FILESDIR}/clipos/security.conf"
+
+	# CLIP OS: Install sysusers configuration for ipsec unprivileged user
+	insinto /usr/lib/sysusers.d
+	doins "${FILESDIR}/clipos/strongswan.conf"
+
+	# CLIP OS: Fix vici socket path for charon & swanctl
+	sed -i \
+		's|# socket = unix://${piddir}/|socket = unix:///run/ipsec/|g' \
+		"${D}/etc/strongswan.d/swanctl.conf" \
+		"${D}/etc/strongswan.d/charon/vici.conf"
 }
 
 pkg_preinst() {
