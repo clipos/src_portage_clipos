@@ -1,6 +1,7 @@
 USE="
 	-acl
 	-berkdb
+	-caps
 	-cracklib
 	-curl
 	-cxx

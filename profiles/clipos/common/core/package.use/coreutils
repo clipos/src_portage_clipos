@@ -1,0 +1,4 @@
+# Enable ACL & capability support in coreutils as this support is enabled in
+# the kernel and the filesystems. Disabling it in coreutils is error prone as
+# it will hide them.
+sys-apps/coreutils acl caps

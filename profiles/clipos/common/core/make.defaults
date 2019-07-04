@@ -1,6 +1,7 @@
 USE="
 	-acl
 	-berkdb
+	-caps
 	-cxx
 	-elfutils
 	-ipv6
