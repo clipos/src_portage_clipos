@@ -19,6 +19,4 @@ USE="
 	-unicode
 	-xattr
 	-xkb
-
-	clipos
 "
