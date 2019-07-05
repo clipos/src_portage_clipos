@@ -1,2 +1,0 @@
-# Unmask lvm2 >= 2.02.158 to get --reportformat json option
-~sys-fs/lvm2-2.02.183 ~amd64
