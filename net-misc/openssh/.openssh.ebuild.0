@@ -425,6 +425,10 @@ src_install() {
 
 	systemd_dounit "${FILESDIR}"/sshd.{service,socket}
 	systemd_newunit "${FILESDIR}"/sshd_at.service 'sshd@.service'
+
+	# CLIP OS: Install sysusers configuration for sshd unprivileged user
+	insinto /usr/lib/sysusers.d
+	doins "${FILESDIR}/clipos/openssh.conf"
 }
 
 pkg_preinst() {
