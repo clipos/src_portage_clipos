@@ -73,6 +73,7 @@ RDEPEND+="
 
 # Everything needed for updates.
 RDEPEND+="
+	sys-apps/updater
 "
 
 # Kernel and hardware support
