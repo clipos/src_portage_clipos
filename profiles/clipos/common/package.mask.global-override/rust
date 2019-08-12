@@ -1,0 +1,2 @@
+# Do not rebuild Rust & Cargo and use official binary builds
+dev-lang/rust
