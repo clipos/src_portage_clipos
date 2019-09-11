@@ -25,5 +25,6 @@ src_configure() {
 	else
 		crypto="ossl"
 	fi
-	econf $(use_enable debug) $(use_enable doxygen doxygen_doc) --with-crypto=$crypto
+	econf $(use_enable debug) $(use_enable doxygen doxygen_doc) \
+		--with-crypto=$crypto --disable-weakcrypto
 }
