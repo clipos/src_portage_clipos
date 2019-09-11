@@ -42,9 +42,9 @@ CROS_WORKON_DESTDIR=(
 	"${S}/hardware"
 )
 case "${PVR:-0}" in
-	5.1.15)
+	5.1.21)
 		CROS_WORKON_COMMIT=(
-			'5a8f87a34f5aaeb6180345d58b3833e35b0604e6' # v5.1.15-11105-g5a8f87a34f5a
+			'bc55f483434cc0f8bd9fb065013987bb65f90665' # v5.1.21-11106-gbc55f483434c
 			'ed31f3727d65205a2dada0b1970ef7934f772f20' # head of master branch
 		)
 		;;
@@ -83,6 +83,7 @@ if [[ "${PN}" == 'clipos-kernel' ]]; then
 	DEPEND+="
 		sys-apps/kmod[lzma]
 		sys-kernel/linux-firmware
+		virtual/libelf
 	"
 fi
 
