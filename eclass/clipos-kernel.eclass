@@ -138,7 +138,8 @@ clipos-kernel_compute_configuration() {
 	# configsets, do not forget them:
 	CONFIGDIR="${CROS_WORKON_DESTDIR[1]}" S="$S" ARCH="$ARCH" \
 		DEBUG=$(usex clipos_instrumentations_debuggable-kernel 1 0) \
-		"${CROS_WORKON_DESTDIR[1]}/make-config.sh" "${configsets[@]}"
+		"${CROS_WORKON_DESTDIR[1]}/make-config.sh" "${configsets[@]}" \
+			|| die "Failed to generate kernel configuration"
 
 	# Workaround to prevent '+' sign from being appended to the local version
 	> "${S}/.scmversion"
