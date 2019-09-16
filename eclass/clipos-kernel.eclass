@@ -42,10 +42,10 @@ CROS_WORKON_DESTDIR=(
 	"${S}/hardware"
 )
 case "${PVR:-0}" in
-	5.1.21)
+	5.2.14)
 		CROS_WORKON_COMMIT=(
-			'bc55f483434cc0f8bd9fb065013987bb65f90665' # v5.1.21-11106-gbc55f483434c
-			'ed31f3727d65205a2dada0b1970ef7934f772f20' # head of master branch
+			'5b786b0470822720ef5527d4d88b313a08a17924' # v5.2.14-13450-g5b786b047082
+			'923bbc8effc0b03bb0720b45a03ea9ef740705ae' # head of master branch
 		)
 		;;
 	9999)
@@ -134,7 +134,7 @@ clipos-kernel_compute_configuration() {
 		configsets+=( security/selinux )
 	fi
 
-	# "make-config.sh" expects some environement variables to process the
+	# "make-config.sh" expects some environment variables to process the
 	# configsets, do not forget them:
 	CONFIGDIR="${CROS_WORKON_DESTDIR[1]}" S="$S" ARCH="$ARCH" \
 		DEBUG=$(usex clipos_instrumentations_debuggable-kernel 1 0) \
