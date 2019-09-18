@@ -8,3 +8,12 @@ net-vpn/strongswan -clipos_use_ikev1
 # We make use of the newer utility stack in strongSwan (swanctl with
 # charon-systemd) and we do not require the legacy "ipsec" script facility.
 net-vpn/strongswan -clipos_use_legacy-ipsec-script
+
+# In the context of the strongswan ebuild, the "caps" USE flag means "use the
+# libcap to be able to drop capabilities automatically at runtime" (according
+# to the ebuild, the strongSwan Autoconf script and the strongSwan wiki).
+# But actually it also implicitly means that charon/charon-systemd would be
+# smarter and won't infer only from the process EUID the available capabilities
+# to the process. Therefore we need it to prevent charon from blindly abandon
+# and fail as we are not going to run charon with EUID=0.
+net-vpn/strongswan caps
