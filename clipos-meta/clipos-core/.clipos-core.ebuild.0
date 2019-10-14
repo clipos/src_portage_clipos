@@ -81,13 +81,14 @@ RDEPEND+="
 	=sys-kernel/clipos-kernel-5.2*
 "
 
-# IPsec infrastructure
+# Network, firewall and IPsec infrastructure
 #
 # Note about the rdependency to "sys-libs/gcc": `libgcc_s.so.1` is required by
 # swanctl for POSIX threads management. Otherwise, `swanctl` miserably fails
 # with the error message "libgcc_s.so.1 must be installed for pthread_cancel to
 # work".
 RDEPEND+="
+	net-firewall/nftables
 	net-vpn/strongswan
 	sys-libs/gcc
 "
