@@ -1,0 +1,2 @@
+# Version > 5.8 required for XFRM interfaces support
+net-vpn/strongswan ~amd64
