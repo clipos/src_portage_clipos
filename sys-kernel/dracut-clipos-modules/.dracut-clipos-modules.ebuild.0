@@ -9,7 +9,7 @@ HOMEPAGE="https://clip-os.org"
 LICENSE="LGPL-2.1+"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="clipos_instrumentations_debuggable-initramfs"
+IUSE="clipos_instrumentations_instrumented-initramfs"
 
 RDEPEND="sys-kernel/dracut"
 
@@ -29,7 +29,7 @@ src_install() {
 			"${FILESDIR}/${module}" "${ED}/${moddir}/${module}"
 	done
 
-	if use clipos_instrumentations_debuggable-initramfs; then
+	if use clipos_instrumentations_instrumented-initramfs; then
 		# Enable debug root shell in initramfs if something fails during bootup
 		cat "${FILESDIR}/90clipos-boot-failed/boot-failed.service.instrumented" \
 			>> "${ED}/${moddir}/90clipos-boot-failed/boot-failed.service"
