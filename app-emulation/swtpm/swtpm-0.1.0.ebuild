@@ -1,1 +1,0 @@
-.swtpm.ebuild.0
