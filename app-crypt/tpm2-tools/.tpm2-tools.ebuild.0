@@ -12,10 +12,9 @@ SRC_URI="${HOMEPAGE}/releases/download/${PV}/${P}.tar.gz"
 LICENCE="BSD"
 SLOT="0"
 KEYWORDS="amd64"
-IUSE="abrmd"
+IUSE=""
 
 RDEPEND=">=app-crypt/tpm2-tss-2.3.1
-		 abrmd? ( >=app-crypt/tpm2-abrmd-2.2.0 )
 		 dev-libs/openssl
 		 net-misc/curl"
 DEPEND="${RDEPEND}"

@@ -5,7 +5,4 @@
     <email>clipos@ssi.gouv.fr</email>
     <name>The CLIP OS Project</name>
   </maintainer>
-  <use>
-    <flag name="abrmd">Use the userspace resource manager</flag>
-  </use>
 </pkgmetadata>
