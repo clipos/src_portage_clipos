@@ -78,7 +78,7 @@ RDEPEND+="
 
 # Kernel and hardware support
 RDEPEND+="
-	sys-kernel/clipos-kernel
+	=sys-kernel/clipos-kernel-5.2*
 "
 
 # IPsec infrastructure
