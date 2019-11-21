@@ -135,6 +135,20 @@ src_configure() {
 		fi
 	done
 
+	# CLIP OS: Disable unused plugins and unwanted options
+	myconf+=" --disable-cmac"
+	myconf+=" --disable-curve25519"
+	myconf+=" --disable-des"
+	myconf+=" --disable-dnskey"
+	myconf+=" --disable-fips-prf"
+	myconf+=" --disable-md5"
+	myconf+=" --disable-pgp"
+	myconf+=" --disable-pki"
+	myconf+=" --disable-rc2"
+	myconf+=" --disable-sha1"
+	myconf+=" --disable-sshkey"
+	myconf+=" --disable-xcbc"
+
 	econf \
 		--disable-static \
 		$(use_enable clipos_use_ikev1 ikev1) \

@@ -17,3 +17,12 @@ net-vpn/strongswan -clipos_use_legacy-ipsec-script
 # to the process. Therefore we need it to prevent charon from blindly abandon
 # and fail as we are not going to run charon with EUID=0.
 net-vpn/strongswan caps
+
+# We use openssl
+net-vpn/strongswan -gmp
+
+# Disable unwanted plugins
+net-vpn/strongswan -strongswan_plugins_led
+net-vpn/strongswan -strongswan_plugins_lookip
+net-vpn/strongswan -strongswan_plugins_systime-fix
+net-vpn/strongswan -strongswan_plugins_unity
