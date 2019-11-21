@@ -42,10 +42,10 @@ CROS_WORKON_DESTDIR=(
 	"${S}/hardware"
 )
 case "${PVR:-0}" in
-	5.2.20)
+	5.3.13)
 		CROS_WORKON_COMMIT=(
-			'54b8dfb06b1a893d0449a1d9db5bb505ec85d4f5' # v5.2.20-13452-g54b8dfb06b1a
-			'3f9cbfa8188b2429f27703e96bbe5ed76081c5d2' # head of master branch
+			'71712e84abe2169e14ac56a718a5904a9a48770b' # v5.3.13-15989-g71712e84abe2
+			'207d77514c5e7d7e1f359846fd440900e9c7fb96' # head of master branch
 		)
 		;;
 	9999)
@@ -115,6 +115,7 @@ clipos-kernel_compute_configuration() {
 		net/basic
 		net/ipsec
 		net/netfilter
+		net/netfilter_gw
 		sound
 		security/basic
 		feature/linux-hardened
@@ -128,6 +129,7 @@ clipos-kernel_compute_configuration() {
 			net/ipv6
 			net/ipsec_ipv6
 			net/netfilter_ipv6
+			net/netfilter_gw_ipv6
 		)
 	fi
 	if use selinux; then
