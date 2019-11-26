@@ -32,6 +32,7 @@ LICENSE="GPL-2"
 SLOT="0"
 IUSE="ipv6 selinux"
 IUSE+=" clipos_instrumentations_debuggable-kernel"
+IUSE+=" clipos_instrumentations_soften-kernel-configuration"
 
 CROS_WORKON_PROJECT=(
 	'external/linux'                  # Linux kernel
@@ -42,10 +43,10 @@ CROS_WORKON_DESTDIR=(
 	"${S}/hardware"
 )
 case "${PVR:-0}" in
-	5.3.13)
+	5.3.13-r1)
 		CROS_WORKON_COMMIT=(
 			'71712e84abe2169e14ac56a718a5904a9a48770b' # v5.3.13-15989-g71712e84abe2
-			'207d77514c5e7d7e1f359846fd440900e9c7fb96' # head of master branch
+			'9558fc0ecf490c589ebbf566df3207c5d635ded5' # head of master branch
 		)
 		;;
 	9999)
@@ -287,6 +288,8 @@ clipos-kernel_install_firmwares() {
 	local profile name core nb_main=0 nb_extra=0
 	local firmwares_list="$(emktemp)"
 
+	einfo "Installing hardware profiles and firmware files"
+
 	for profile in "$hardware_repo_checkout/profiles"/* ; do
 		[[ -d "$profile" ]] || continue
 		insinto "/usr/share/$profile" && doins "$profile/modules"
@@ -324,6 +327,31 @@ clipos-kernel_install_firmwares() {
 		fi
 	done
 	rm "$firmwares_list"
+}
+
+clipos-kernel_install_sysctls() {
+	# Install sysctl configuration files
+	local hardware_repo_checkout="$(basename -- "${CROS_WORKON_DESTDIR[1]}")"
+	local sysctls_configuration_dir="/etc/sysctl.d"
+
+	einfo "Installing sysctl configuration files"
+
+	diropts -o 0 -g 0 -m 0755
+	dodir "$sysctls_configuration_dir"
+	insinto "$sysctls_configuration_dir"
+	insopts -o 0 -g 0 -m 0644
+	doins "$hardware_repo_checkout/sysctls"/*
+
+	if use clipos_instrumentations_soften-kernel-configuration; then
+		einfo "Loosening some sysctls due to instrumentation"
+
+		sed -i "/^kernel\.modules_disabled\s*=\s*1$/d" \
+			"$D/$sysctls_configuration_dir/50-kernel.conf"
+		sed -i "s/^\(kernel\.kptr_restrict\)\s*=\s*[0-2]$/\1 = 0/" \
+			"$D/$sysctls_configuration_dir/50-kernel.conf"
+		sed -i "s/^\(kernel\.yama.ptrace_scope\)\s*=\s*[0-3]$/\1 = 0/" \
+			"$D/$sysctls_configuration_dir/50-kernel.conf"
+	fi
 }
 
 # vim: set ts=8 sts=8 sw=8 noet tw=79:

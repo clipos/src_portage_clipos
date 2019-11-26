@@ -27,6 +27,7 @@ src_install() {
 	clipos-kernel_install_kernel
 	clipos-kernel_install_modules
 	clipos-kernel_install_firmwares
+	clipos-kernel_install_sysctls
 }
 
 # vim: set ts=8 sts=8 sw=8 noet tw=79:
