@@ -4,7 +4,7 @@
 EAPI=7
 
 CROS_WORKON_PROJECT='external/systemd'
-CROS_WORKON_COMMIT="572385e13566f9ca442ee3b46742159b905b4712" # v242-32-g572385e135
+CROS_WORKON_COMMIT="e51d9bf9e5ac5a6618c175cd9b5cfdc6733cd5d1" # v243.4
 KEYWORDS="amd64"
 
 PYTHON_COMPAT=( python{3_5,3_6,3_7} )
@@ -24,7 +24,7 @@ HOMEPAGE="https://www.freedesktop.org/wiki/Software/systemd"
 
 LICENSE="GPL-2 LGPL-2.1 MIT public-domain"
 SLOT="0/2"
-IUSE="acl apparmor audit build cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi gnutls http idn importd +kmod libidn2 +lz4 lzma nat pam pcre policykit qrcode +resolvconf +seccomp selinux +split-usr +sysv-utils test vanilla xkb"
+IUSE="acl apparmor audit build cgroup-hybrid cryptsetup curl dns-over-tls elfutils +gcrypt gnuefi http idn importd +kmod +lz4 lzma nat pam pcre policykit qrcode +resolvconf +seccomp selinux split-usr static-libs +sysv-utils test vanilla xkb"
 # CLIP OS specific use flags
 IUSE+=" clipos_use_sysusers clipos_use_networkd"
 IUSE+=" clipos_instrumentations_coredump-handler clipos_instrumentations_early-root-shell"
@@ -42,20 +42,14 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
 	audit? ( >=sys-process/audit-2:0= )
 	cryptsetup? ( >=sys-fs/cryptsetup-1.6:0= )
 	curl? ( net-misc/curl:0= )
-	dns-over-tls? (
-		gnutls? ( >=net-libs/gnutls-3.5.3:0= )
-		!gnutls? ( >=dev-libs/openssl-1.1.0:0= )
-	)
+	dns-over-tls? ( >=net-libs/gnutls-3.5.3:0= )
 	elfutils? ( >=dev-libs/elfutils-0.158:0= )
 	gcrypt? ( >=dev-libs/libgcrypt-1.4.5:0=[${MULTILIB_USEDEP}] )
 	http? (
-		>=net-libs/libmicrohttpd-0.9.33:0=
-		gnutls? ( >=net-libs/gnutls-3.1.4:0= )
+		>=net-libs/libmicrohttpd-0.9.33:0=[epoll(+)]
+		>=net-libs/gnutls-3.1.4:0=
 	)
-	idn? (
-		libidn2? ( net-dns/libidn2:= )
-		!libidn2? ( net-dns/libidn:= )
-	)
+	idn? ( net-dns/libidn2:= )
 	importd? (
 		app-arch/bzip2:0=
 		sys-libs/zlib:0=
@@ -64,15 +58,41 @@ COMMON_DEPEND=">=sys-apps/util-linux-2.30:0=[${MULTILIB_USEDEP}]
 	lz4? ( >=app-arch/lz4-0_p131:0=[${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1:0=[${MULTILIB_USEDEP}] )
 	nat? ( net-firewall/iptables:0= )
-	pam? ( virtual/pam:=[${MULTILIB_USEDEP}] )
+	pam? ( sys-libs/pam:=[${MULTILIB_USEDEP}] )
 	pcre? ( dev-libs/libpcre2 )
 	qrcode? ( media-gfx/qrencode:0= )
 	seccomp? ( >=sys-libs/libseccomp-2.3.3:0= )
 	selinux? ( sys-libs/libselinux:0= )
 	xkb? ( >=x11-libs/libxkbcommon-0.4.1:0= )"
 
+# Newer linux-headers needed by ia64, bug #480218
+DEPEND="${COMMON_DEPEND}
+	>=sys-kernel/linux-headers-${MINKV}
+	gnuefi? ( >=sys-boot/gnu-efi-3.0.2 )
+"
+
 # baselayout-2.2 has /run
 RDEPEND="${COMMON_DEPEND}
+	acct-group/adm
+	acct-group/wheel
+	acct-group/kmem
+	acct-group/tty
+	acct-group/utmp
+	acct-group/audio
+	acct-group/cdrom
+	acct-group/dialout
+	acct-group/disk
+	acct-group/input
+	acct-group/kvm
+	acct-group/render
+	acct-group/tape
+	acct-group/video
+	acct-group/systemd-journal
+	acct-user/systemd-journal-remote
+	acct-user/systemd-coredump
+	acct-user/systemd-network
+	acct-user/systemd-resolve
+	acct-user/systemd-timesync
 	>=sys-apps/baselayout-2.2
 	selinux? ( sec-policy/selinux-base-policy[systemd] )
 	sysv-utils? ( !sys-apps/sysvinit )
@@ -86,7 +106,8 @@ RDEPEND="${COMMON_DEPEND}
 	!sys-auth/nss-myhostname
 	!<sys-kernel/dracut-044
 	!sys-fs/eudev
-	!sys-fs/udev"
+	!sys-fs/udev
+"
 
 # sys-apps/dbus: the daemon only (+ build-time lib dep for tests)
 PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
@@ -95,13 +116,7 @@ PDEPEND=">=sys-apps/dbus-1.9.8[systemd]
 	policykit? ( sys-auth/polkit )
 	!vanilla? ( sys-apps/gentoo-systemd-integration )"
 
-# Newer linux-headers needed by ia64, bug #480218
-DEPEND="
-	>=sys-kernel/linux-headers-${MINKV}
-	gnuefi? ( >=sys-boot/gnu-efi-3.0.2 )
-"
-
-BDEPEND="${COMMON_DEPEND}
+BDEPEND="
 	app-arch/xz-utils:0
 	dev-util/gperf
 	>=dev-util/meson-0.46
@@ -178,17 +193,13 @@ src_prepare() {
 
 	# Add local patches here
 	PATCHES+=(
-		"${FILESDIR}"/242-gcc-9.patch
-		"${FILESDIR}"/242-socket-util-flush-accept.patch
-		"${FILESDIR}"/242-wireguard-listenport.patch
-		"${FILESDIR}"/242-file-max.patch
+		"${FILESDIR}/243-seccomp.patch"
 	)
 
 	if ! use vanilla; then
 		PATCHES+=(
 			"${FILESDIR}/gentoo-Dont-enable-audit-by-default.patch"
 			"${FILESDIR}/gentoo-systemd-user-pam.patch"
-			"${FILESDIR}/gentoo-uucp-group-r1.patch"
 			"${FILESDIR}/gentoo-generator-path-r1.patch"
 		)
 	fi
@@ -236,6 +247,7 @@ multilib_src_configure() {
 		# make sure we get /bin:/sbin in PATH
 		-Dsplit-usr=$(usex split-usr true false)
 		-Drootprefix="$(usex split-usr "${EPREFIX:-/}" "${EPREFIX}/usr")"
+		-Drootlibdir="${EPREFIX}/usr/$(get_libdir)"
 		-Dsysvinit-path=
 		-Dsysvrcnd-path=
 		# Avoid infinite exec recursion, bug 642724
@@ -244,18 +256,22 @@ multilib_src_configure() {
 		-Defi=$(meson_multilib_native_use gnuefi)
 		# CLIP OS: Unused
 		-Dima=false
+		# -Ddefault-hierarchy=$(usex cgroup-hybrid hybrid unified)
+		# CLIP OS: Only use cgroups v2 with a unified hierarchy
+		-Ddefault-hierarchy=unified
 		# Optional components/dependencies
 		-Dacl=$(meson_multilib_native_use acl)
 		-Dapparmor=$(meson_multilib_native_use apparmor)
 		-Daudit=$(meson_multilib_native_use audit)
 		-Dlibcryptsetup=$(meson_multilib_native_use cryptsetup)
 		-Dlibcurl=$(meson_multilib_native_use curl)
+		-Ddns-over-tls=$(meson_multilib_native_use dns-over-tls)
 		-Delfutils=$(meson_multilib_native_use elfutils)
 		-Dgcrypt=$(meson_use gcrypt)
 		-Dgnu-efi=$(meson_multilib_native_use gnuefi)
-		-Dgnutls=$(meson_multilib_native_use gnutls)
-		-Defi-libdir="${EPREFIX}/usr/$(get_libdir)"
+		-Defi-libdir="${ESYSROOT}/usr/$(get_libdir)"
 		-Dmicrohttpd=$(meson_multilib_native_use http)
+		-Didn=$(meson_multilib_native_use idn)
 		-Dimportd=$(meson_multilib_native_use importd)
 		-Dbzip2=$(meson_multilib_native_use importd)
 		-Dzlib=$(meson_multilib_native_use importd)
@@ -273,12 +289,11 @@ multilib_src_configure() {
 		-Dsmack=false
 		-Ddbus=$(meson_multilib_native_use test)
 		-Dxkbcommon=$(meson_multilib_native_use xkb)
-		# hardcode a few paths to spare some deps
-		-Dkill-path=/bin/kill
 		-Dntp-servers="0.gentoo.pool.ntp.org 1.gentoo.pool.ntp.org 2.gentoo.pool.ntp.org 3.gentoo.pool.ntp.org"
 		# Breaks screen, tmux, etc.
 		# CLIP OS: Intended behaviour (no persistence beyond session lifetime)
 		-Ddefault-kill-user-processes=true
+		-Dcreate-log-dirs=false
 
 		# multilib options
 		-Dbacklight=$(meson_multilib)
@@ -312,6 +327,10 @@ multilib_src_configure() {
 		-Dtmpfiles=$(meson_multilib)
 		-Dvconsole=$(meson_multilib)
 
+		# static-libs
+		-Dstatic-libsystemd=$(usex static-libs true false)
+		-Dstatic-libudev=$(usex static-libs true false)
+
 		# CLIP OS: Always disabled
 		-Dresolve=false
 		-Dmachined=false
@@ -327,55 +346,18 @@ multilib_src_configure() {
 		-Ddbussessionservicedir="${EPREFIX}/usr/share/dbus-1/services"
 		-Ddbussystemservicedir="${EPREFIX}/usr/share/dbus-1/system-services"
 
-		# CLIP OS: FIXME: Investigate
-		-Dpamconfdir=/usr/share/pam.d
-
 		# The CLIP OS epoch, Mon January 1 00:00:00 UTC 2018. Used by timesyncd
 		# as a sanity check for the minimum acceptable time. Explicitly set
 		# to avoid using the current build time.
 		-Dtime-epoch=1514764800
 
-		# CLIP OS: FIXME: unported options, still needed?
-		-Defi-cc="$(tc-getCC)"
-
-		# CLIP OS: FIXME: split-usr/usrmerge
-		-Drootlibdir="${EPREFIX}/usr/$(get_libdir)"
-		-Dsplit-usr=true
-
 		# CLIP OS: Set hostname fallback to product shortname
 		-Dfallback-hostname="$(get_shortname)"
-
-		# CLIP OS: Only use cgroups v2 with a unified hierarchy
-		-Ddefault-hierarchy=unified
 
 		# CLIP OS: Set the shell to spawn when the "early-root-shell"
 		# instrumentation feature is enabled
 		-Ddebug-shell=$(usex clipos_instrumentations_early-root-shell /bin/bash /sbin/nologin)
-
-		# CLIP OS: Disabling this breaks the build later
-		-Dman=true
 	)
-
-	if multilib_is_native_abi && use idn; then
-		myconf+=(
-			-Dlibidn2=$(usex libidn2 true false)
-			-Dlibidn=$(usex libidn2 false true)
-		)
-	else
-		myconf+=(
-			-Dlibidn2=false
-			-Dlibidn=false
-		)
-	fi
-
-	if multilib_is_native_abi && use dns-over-tls; then
-		myconf+=(
-			-Ddns-over-tls=true
-			-Dopenssl=$(usex !gnutls true false)
-		)
-	else
-		myconf+=( -Ddns-over-tls=false -Dopenssl=false )
-	fi
 
 	meson_src_configure "${myconf[@]}"
 }
@@ -386,7 +368,7 @@ multilib_src_compile() {
 
 multilib_src_test() {
 	unset DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
-	eninja test
+	meson_src_test
 }
 
 multilib_src_install() {
@@ -418,23 +400,27 @@ multilib_src_install_all() {
 
 	# Preserve empty dirs in /etc & /var, bug #437008
 	keepdir /etc/{binfmt.d,modules-load.d,tmpfiles.d}
-	keepdir /etc/systemd/{ntp-units.d,user} /var/lib/systemd
+	keepdir /etc/kernel/install.d
+	keepdir /etc/systemd/{network,system,user}
 	keepdir /etc/udev/{hwdb.d,rules.d}
-	keepdir /var/log/journal/remote
+	keepdir "${rootprefix}"/lib/systemd/{system-sleep,system-shutdown}
+	keepdir /usr/lib/{binfmt.d,modules-load.d}
+	keepdir /usr/lib/systemd/user-generators
+	keepdir /var/lib/systemd
+	keepdir /var/log/journal
 
 	# Symlink /etc/sysctl.conf for easy migration.
 	dosym ../sysctl.conf /etc/sysctl.d/99-sysctl.conf
 
-	local udevdir=/lib/udev
-	use split-usr || udevdir=/usr/lib/udev
-
-	rm -r "${ED}${udevdir}/hwdb.d" || die
+	rm -r "${ED}${rootprefix}"/lib/udev/hwdb.d || die
 
 	if use split-usr; then
 		# Avoid breaking boot/reboot
 		dosym ../../../lib/systemd/systemd /usr/lib/systemd/systemd
 		dosym ../../../lib/systemd/systemd-shutdown /usr/lib/systemd/systemd-shutdown
 	fi
+
+	gen_usr_ldscript -a systemd udev
 
 	# CLIP OS: Don't set any extra environment variables by default
 	# rm "${ED%/}/usr/lib/environment.d/99-environment.conf" || die
@@ -537,28 +523,25 @@ save_enabled_units() {
 
 pkg_preinst() {
 	save_enabled_units {machines,remote-{cryptsetup,fs}}.target getty@tty1.service
+
+	if ! use split-usr; then
+		local dir
+		for dir in bin sbin lib; do
+			if [[ ! ${EROOT}/${dir} -ef ${EROOT}/usr/${dir} ]]; then
+				eerror "\"${EROOT}/${dir}\" and \"${EROOT}/usr/${dir}\" are not merged."
+				eerror "One of them should be a symbolic link to the other one."
+				FAIL=1
+			fi
+		done
+		if [[ ${FAIL} ]]; then
+			eerror "Migration to system layout with merged directories must be performed before"
+			eerror "rebuilding ${CATEGORY}/${PN} with USE=\"-split-usr\" to avoid run-time breakage."
+			die "System layout with split directories still used"
+		fi
+	fi
 }
 
 pkg_postinst() {
-	# CLIP OS: User and groups are created later in the configure step
-	# newusergroup() {
-	# 	enewgroup "$1"
-	# 	enewuser "$1" -1 -1 -1 "$1"
-	# }
-
-	# enewgroup input
-	# enewgroup kvm 78
-	# enewgroup render
-	# enewgroup systemd-journal
-	# newusergroup systemd-bus-proxy
-	# newusergroup systemd-coredump
-	# newusergroup systemd-journal-gateway
-	# newusergroup systemd-journal-remote
-	# newusergroup systemd-journal-upload
-	# newusergroup systemd-network
-	# newusergroup systemd-resolve
-	# newusergroup systemd-timesync
-
 	systemd_update_catalog
 
 	# Keep this here in case the database format changes so it gets updated
@@ -578,6 +561,14 @@ pkg_postinst() {
 
 	if [[ ${ENABLED_UNITS[@]} ]]; then
 		systemctl --root="${ROOT:-/}" enable "${ENABLED_UNITS[@]}"
+	fi
+
+	if [[ -z ${REPLACING_VERSIONS} ]]; then
+		if type systemctl &>/dev/null; then
+			systemctl --root="${ROOT:-/}" enable getty@.service remote-fs.target || FAIL=1
+		fi
+		elog "To enable a useful set of services, run the following:"
+		elog "  systemctl preset-all --preset-mode=enable-only"
 	fi
 
 	if [[ -L ${EROOT}/var/lib/systemd/timesync ]]; then
