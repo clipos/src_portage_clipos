@@ -1,2 +1,3 @@
 # nftables > 0.9.1 required for IPsec support
 net-firewall/nftables ~amd64
+net-libs/libnftnl ~amd64
