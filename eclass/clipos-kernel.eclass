@@ -43,10 +43,10 @@ CROS_WORKON_DESTDIR=(
 	"${S}/hardware"
 )
 case "${PVR:-0}" in
-	5.3.18)
+	5.4.8)
 		CROS_WORKON_COMMIT=(
-			'f90505604821b6604604af7f64c894f71996d4f1' # v5.3.18-15991-gf90505604821
-			'9526f6074f84856cccd105f9c6cd0ba6e9905b31' # head of master branch
+			'6611190094e3a1ccd7b948f5dc32d295b3250a33' # v5.4.8-18276-g6611190094e3
+			'6e09a1bdf0120127ecd9addbbfe79591ab951199' # head of master branch
 		)
 		;;
 	9999)
@@ -120,7 +120,6 @@ clipos-kernel_compute_configuration() {
 		sound
 		security/basic
 		feature/linux-hardened
-		feature/lockdown
 		)
 	if use clipos_instrumentations_debuggable-kernel; then
 		configsets+=(debug)
