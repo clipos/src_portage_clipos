@@ -22,6 +22,7 @@ net-vpn/strongswan caps
 net-vpn/strongswan -gmp
 
 # Disable unwanted plugins
+net-vpn/strongswan -pam
 net-vpn/strongswan -strongswan_plugins_led
 net-vpn/strongswan -strongswan_plugins_lookip
 net-vpn/strongswan -strongswan_plugins_systime-fix
