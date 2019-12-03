@@ -5,4 +5,4 @@
 sys-apps/systemd gnuefi
 
 # Disable unrequired features
-sys-apps/systemd -sysv-utils -pcre -acl -elfutils
+sys-apps/systemd -sysv-utils -pcre -elfutils
