@@ -43,10 +43,10 @@ CROS_WORKON_DESTDIR=(
 	"${S}/hardware"
 )
 case "${PVR:-0}" in
-	5.3.13-r1)
+	5.3.13-r2)
 		CROS_WORKON_COMMIT=(
 			'71712e84abe2169e14ac56a718a5904a9a48770b' # v5.3.13-15989-g71712e84abe2
-			'9558fc0ecf490c589ebbf566df3207c5d635ded5' # head of master branch
+			'9526f6074f84856cccd105f9c6cd0ba6e9905b31' # head of master branch
 		)
 		;;
 	9999)
@@ -340,7 +340,13 @@ clipos-kernel_install_sysctls() {
 	dodir "$sysctls_configuration_dir"
 	insinto "$sysctls_configuration_dir"
 	insopts -o 0 -g 0 -m 0644
-	doins "$hardware_repo_checkout/sysctls"/*
+	doins "$hardware_repo_checkout/sysctls"/50-*.conf
+
+	# The 'ipsec' configset pulls CONFIG_IPV6 since CONFIG_XFRM_INTERFACE
+	# depends on it, therefore let's disable IPv6 at runtime if needed
+	if ! use ipv6; then
+		doins "$hardware_repo_checkout/sysctls/60-ipv6_disable.conf"
+	fi
 
 	if use clipos_instrumentations_soften-kernel-configuration; then
 		einfo "Loosening some sysctls due to instrumentation"
