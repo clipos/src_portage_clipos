@@ -1,0 +1,2 @@
+# Disable iptables support in iproute2 as we only use nftables
+sys-apps/iproute2 -iptables
