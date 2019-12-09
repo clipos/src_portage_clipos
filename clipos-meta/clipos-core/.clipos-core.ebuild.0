@@ -88,6 +88,7 @@ RDEPEND+="
 # with the error message "libgcc_s.so.1 must be installed for pthread_cancel to
 # work".
 RDEPEND+="
+	sys-apps/iproute2
 	net-firewall/nftables
 	net-vpn/strongswan
 	sys-libs/gcc
@@ -124,7 +125,6 @@ RDEPEND+="
 		sys-apps/findutils
 		sys-apps/gawk
 		sys-apps/grep
-		sys-apps/iproute2
 		sys-apps/less
 		sys-apps/net-tools
 		sys-apps/sed
