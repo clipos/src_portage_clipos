@@ -231,9 +231,10 @@ src_install() {
 	# so it's safe to get rid of the .la files
 	find "${D}" -name '*.la' -delete || die "Failed to remove .la files."
 
-	# CLIP OS: Install systemd unit hardening configuration
+	# CLIP OS: Install systemd unit hardening & configuration
 	insinto /lib/systemd/system/strongswan.service.d
 	doins "${FILESDIR}/clipos/security.conf"
+	doins "${FILESDIR}/clipos/unit-deps.conf"
 
 	# CLIP OS: Install sysusers configuration for ipsec unprivileged user
 	insinto /usr/lib/sysusers.d
