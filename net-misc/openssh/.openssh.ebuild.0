@@ -434,6 +434,9 @@ src_install() {
 	# CLIP OS: Install sysusers configuration for sshd unprivileged user
 	insinto /usr/lib/sysusers.d
 	doins "${FILESDIR}/clipos/openssh.conf"
+
+	# CLIP OS: Remove unneeded ssh-keysign
+	rm -v "${D}/usr/lib64/misc/ssh-keysign"
 }
 
 pkg_preinst() {
