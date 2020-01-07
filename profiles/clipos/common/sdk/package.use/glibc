@@ -1,0 +1,4 @@
+# Workaround a precheck failure in rootless podman as devpts has the "wrong"
+# UID when using user namespaces. This only impacts the SDK and not the final
+# image.
+sys-libs/glibc suid
