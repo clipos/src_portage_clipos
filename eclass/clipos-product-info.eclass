@@ -17,4 +17,8 @@ clipos-product-info_get_commonname() {
 	echo "CLIP OS"
 }
 
-EXPORT_FUNCTIONS get_shortname get_commonname
+clipos-product-info_get_vgname() {
+	echo "mainvg"
+}
+
+EXPORT_FUNCTIONS get_shortname get_commonname get_vgname
