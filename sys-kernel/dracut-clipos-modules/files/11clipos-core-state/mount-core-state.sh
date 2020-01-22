@@ -220,8 +220,9 @@ fallback_passphrase() {
 }
 
 deny_boot() {
-	warn "Denying further system bootup"
+	umount --quiet /dev/disk/by-partlabel/EFI
 
+	warn "Denying further system bootup"
 	systemctl --no-block isolate boot-failed.target
 	exit 1
 }
