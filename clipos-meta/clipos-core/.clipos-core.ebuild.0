@@ -62,6 +62,7 @@ RDEPEND="
 
 # The services and system manager
 RDEPEND+="
+	sys-apps/dbus-broker
 	sys-apps/systemd
 "
 
