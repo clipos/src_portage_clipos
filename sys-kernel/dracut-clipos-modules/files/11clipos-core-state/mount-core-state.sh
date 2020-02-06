@@ -61,7 +61,7 @@ main() {
 			# Currently we could reboot without even opening core_state but in
 			# the future, during installation, we will be setting up stuff in
 			# the state partition during first boot
-			declare -r tmp_key="core_state_key"
+			declare -r tmp_key="clipos"
 			if ! open_core_state "keyfile" "$tmp_key"; then
 				warn "Could not open core_state with dummy passphrase"
 				rmdir "$keyfilesdir"
