@@ -102,6 +102,7 @@ RDEPEND+="
 # remote management via SSH, we need to keep Bash in the Core for now.
 RDEPEND+="
 	app-shells/bash
+	net-misc/chrony
 	net-misc/openssh
 "
 
