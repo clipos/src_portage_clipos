@@ -1,5 +1,6 @@
 # Masked packages from Gentoo upstream portage tree to use only the versions
 # from this overlay
+net-misc/chrony::gentoo
 net-misc/openssh::gentoo
 net-vpn/strongswan::gentoo
 sys-apps/systemd::gentoo
