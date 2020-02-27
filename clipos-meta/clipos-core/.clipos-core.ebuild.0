@@ -101,6 +101,7 @@ RDEPEND+="
 # their default login shell. As we do not yet have specific cages/rootfs for
 # remote management via SSH, we need to keep Bash in the Core for now.
 RDEPEND+="
+	app-admin/rsyslog
 	app-shells/bash
 	net-misc/chrony
 	net-misc/openssh
