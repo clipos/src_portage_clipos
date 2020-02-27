@@ -1,0 +1,4 @@
+# Use OpenSSL for TLS support
+app-admin/rsyslog openssl
+# Reliable Event Logging Protocol (RELP)
+app-admin/rsyslog relp
