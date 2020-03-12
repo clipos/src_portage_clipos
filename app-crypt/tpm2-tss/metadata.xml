@@ -5,4 +5,11 @@
     <email>clipos@ssi.gouv.fr</email>
     <name>The CLIP OS Project</name>
   </maintainer>
+  <use>
+    <flag name="gcrypt">Use <pkg>dev-libs/libgcrypt</pkg> as crypto engine</flag>
+    <flag name="openssl">Use <pkg>dev-libs/openssl</pkg> as crypto engine</flag>
+  </use>
+  <upstream>
+    <remote-id type="github">tpm2-software/tpm2-tss</remote-id>
+  </upstream>
 </pkgmetadata>
