@@ -54,10 +54,10 @@ RDEPEND="
 	sys-apps/baselayout
 	sys-apps/coreutils
 	sys-apps/kbd
+	sys-apps/shadow
 	sys-apps/util-linux
 	virtual/libc
 	virtual/modutils
-	virtual/shadow
 "
 
 # The services and system manager
