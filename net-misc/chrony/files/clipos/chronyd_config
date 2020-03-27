@@ -1,5 +1,5 @@
 # Define remote ntp server
-server 172.27.100.10 key 1 iburst
+server ntp.clip-os.org key 1 iburst burst minpoll 8
 
 # This directive specify the location of the file containing ID/key pairs for
 # NTP authentication.

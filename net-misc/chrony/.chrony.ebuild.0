@@ -51,7 +51,7 @@ PATCHES=(
 	# "${FILESDIR}"/${PN}-3.5-systemd-gentoo.patch
 
 	# CLIP OS: Support to run under an unprivileged user, started by systemd
-	"${FILESDIR}"/${PN}-3.5-systemd-clipos.patch
+	"${FILESDIR}"/clipos/${PN}-3.5-systemd.patch
 )
 
 src_prepare() {
@@ -141,8 +141,9 @@ src_install() {
 
 	keepdir /var/{lib,log}/chrony
 
-	insinto /etc/logrotate.d
-	newins "${FILESDIR}"/chrony-2.4-r1.logrotate chrony
+	# CLIP OS: No log files
+	# insinto /etc/logrotate.d
+	# newins "${FILESDIR}"/chrony-2.4-r1.logrotate chrony
 
 	# CLIP OS: Install unit file
 	systemd_dounit "${FILESDIR}"/clipos/chronyd.service
