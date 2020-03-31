@@ -43,10 +43,10 @@ CROS_WORKON_DESTDIR=(
 	"${S}/hardware"
 )
 case "${PVR:-0}" in
-	5.5.11)
+	5.5.11-r1)
 		CROS_WORKON_COMMIT=(
 			'cf3b0855374a9c8ce2f76891d2c35416b93558e1' # v5.5.11-22204-gcf3b0855374a
-			'0d7fcc277d2df7a454029a6528c04509629ceb99' # head of master branch
+			'07d59109bebfcd490d58cc505f82b9a67a2a5520' # head of master branch
 		)
 		;;
 	9999)
@@ -112,6 +112,7 @@ clipos-kernel_compute_configuration() {
 		cpu/x86_64
 		graphics
 		kvm_guest
+		kvm_host
 		misc_drivers
 		net/basic
 		net/ipsec
