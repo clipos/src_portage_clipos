@@ -43,10 +43,10 @@ CROS_WORKON_DESTDIR=(
 	"${S}/hardware"
 )
 case "${PVR:-0}" in
-	5.6.5)
+	5.6.12)
 		CROS_WORKON_COMMIT=(
-			'893b12ee7d641ee2a9fa72e285651e388c61ebf3' # v5.6.5-24410-g893b12ee7d64
-			'041e8caa5be80cdbdcf3a57a89894ff64b992f5e' # head of master branch
+			'3a4b95e212549219add7a7c3230afd590c0b8e0d' # v5.6.12-24411-g3a4b95e21254
+			'330c7482ce19bb5ee596d29fb535bb337cea5cf6' # head of master branch
 		)
 		;;
 	9999)
