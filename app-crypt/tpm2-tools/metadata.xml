@@ -5,4 +5,7 @@
     <email>clipos@ssi.gouv.fr</email>
     <name>The CLIP OS Project</name>
   </maintainer>
+  <upstream>
+    <remote-id type="github">tpm2-software/tpm2-tools</remote-id>
+  </upstream>
 </pkgmetadata>
