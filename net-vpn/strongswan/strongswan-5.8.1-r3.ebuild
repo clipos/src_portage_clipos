@@ -1,1 +1,0 @@
-.strongswan.ebuild.0
