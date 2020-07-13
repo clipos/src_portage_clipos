@@ -2,4 +2,11 @@
 # able to use the "shell" option of portage-derive for debugging purposes in
 # the case where the upstream Gentoo Portage tree equalization happens to fail
 # or to misbehave.
-app-portage/portage-derive   ipython
+app-portage/portage-derive ipython
+
+# Disable python2_7 targets to build ipython
+dev-python/automat -python_targets_python2_7
+dev-python/m2r -python_targets_python2_7
+dev-python/docutils -python_targets_python2_7
+>=dev-python/importlib_metadata-1.6.1 -python_targets_python2_7
+>=net-libs/zeromq-4.3.2 drafts
