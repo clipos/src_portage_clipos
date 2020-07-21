@@ -1,2 +1,0 @@
-# Required for both core & efiboot
-~sys-fs/cryptsetup-2.1.0 ~amd64
