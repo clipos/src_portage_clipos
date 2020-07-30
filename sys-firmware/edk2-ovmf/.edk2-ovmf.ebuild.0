@@ -27,7 +27,7 @@ else
 	SRC_URI="https://github.com/tianocore/edk2/archive/${RELEASE_NAME}.tar.gz -> ${P}.tar.gz"
 	OPENSSL_PV="1.1.1b"
 	OPENSSL_P="openssl-${OPENSSL_PV}"
-	SRC_URI+=" mirror://openssl/source/${OPENSSL_P}.tar.gz"
+	SRC_URI+=" mirror://openssl/source/old/1.1.1/${OPENSSL_P}.tar.gz"
 	KEYWORDS="amd64"
 fi
 
