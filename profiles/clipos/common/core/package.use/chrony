@@ -1,2 +1,0 @@
-# compile libnettle to enable sha256
-net-misc/chrony nettle
