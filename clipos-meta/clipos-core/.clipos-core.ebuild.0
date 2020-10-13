@@ -57,7 +57,6 @@ RDEPEND="
 	sys-apps/shadow
 	sys-apps/util-linux
 	virtual/libc
-	virtual/modutils
 "
 
 # The services and system manager
