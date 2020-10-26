@@ -23,6 +23,7 @@ RDEPEND+="
 RDEPEND+="
 	sys-kernel/dracut
 	sys-kernel/dracut-clipos-modules
+	app-arch/zstd
 "
 # The runtime dependencies needed to make dracut work and which are not marked
 # as rdeps in dracut because they are part of the system profile (see "Implicit
