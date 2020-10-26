@@ -43,10 +43,10 @@ CROS_WORKON_DESTDIR=(
 	"${S}/hardware"
 )
 case "${PVR:-0}" in
-	5.8.14)
+	5.9.1)
 		CROS_WORKON_COMMIT=(
-			'a3211b467a7b97b8869e724f7644f4a0beee520e' # v5.8.14-29233-ga3211b467a7b
-			'6867ed5ec75dabe245fde139970296046c645297' # head of master branch
+			'8595a9ba95a907baa917cd15663fad0fde195d59' # v5.9.1-31258-g8595a9ba95a9
+			'66db4f86d0946151a96c01221563af6893f0e4ee' # head of master branch
 		)
 		;;
 	9999)
@@ -76,7 +76,7 @@ ARCH=${ARCH/amd64/x86_64}
 
 RDEPEND=""
 DEPEND="${RDEPEND}
-	app-arch/lz4
+	app-arch/zstd
 	sys-devel/bc
 	sys-apps/net-tools
 "
